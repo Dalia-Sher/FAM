@@ -46,14 +46,19 @@ export function ChartHeader({ meta, onChange }: Props) {
           חודש
           <input
             type="text"
+            inputMode="numeric"
+            placeholder="1–12 או שם חודש"
             value={meta.month ?? ''}
             onChange={(e) => set('month', e.target.value || undefined)}
+            title="מספר חודש (1–12) או שם בעברית/אנגלית — לחישוב יום בשבוע"
           />
         </label>
         <label>
           שנה
           <input
             type="text"
+            inputMode="numeric"
+            placeholder="2026"
             value={meta.year ?? ''}
             onChange={(e) => set('year', e.target.value || undefined)}
           />

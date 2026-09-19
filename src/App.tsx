@@ -167,6 +167,8 @@ export default function App() {
             <DayMarkers
               section="top"
               days={active.days}
+              month={active.meta.month}
+              year={active.meta.year}
               usualMeasureTime={active.meta.usualMeasureTime}
               onUpdateDay={updateDay}
             />
@@ -174,6 +176,8 @@ export default function App() {
             <DayMarkers
               section="bottom"
               days={active.days}
+              month={active.meta.month}
+              year={active.meta.year}
               usualMeasureTime={active.meta.usualMeasureTime}
               onUpdateDay={updateDay}
             />

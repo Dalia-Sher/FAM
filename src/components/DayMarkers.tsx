@@ -2,14 +2,17 @@ import type { ReactNode } from 'react';
 import type { DayEntry, MucusType } from '../types';
 import { DAYS_COUNT } from '../types';
 import {
+  dayOfMonthValue,
   isFertileRelevant,
   lutealCountLabel,
   postPeakLabel,
-  weekdayFromDate,
+  weekdayForCycleDay,
 } from '../lib/helpers';
 
 type Props = {
   days: DayEntry[];
+  month?: string;
+  year?: string;
   usualMeasureTime?: string;
   onUpdateDay: (dayIndex: number, patch: Partial<DayEntry>) => void;
   section: 'top' | 'bottom';
@@ -67,7 +70,14 @@ function MarkerRow({
   );
 }
 
-export function DayMarkers({ days, usualMeasureTime, onUpdateDay, section }: Props) {
+export function DayMarkers({
+  days,
+  month,
+  year,
+  usualMeasureTime,
+  onUpdateDay,
+  section,
+}: Props) {
   if (section === 'top') {
     return (
       <div className="day-markers">
@@ -78,15 +88,29 @@ export function DayMarkers({ days, usualMeasureTime, onUpdateDay, section }: Pro
           />
         </MarkerRow>
 
-        <MarkerRow label="תאריך">
+        <MarkerRow label="תאריך (יום בחודש)">
           <DayCells
             days={days}
             render={(day, i) => (
               <input
-                type="date"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={31}
                 className="cell-input"
-                value={day.date ?? ''}
-                onChange={(e) => onUpdateDay(i, { date: e.target.value || undefined })}
+                placeholder="יום"
+                value={dayOfMonthValue(day.date)}
+                onChange={(e) => {
+                  const v = e.target.value.trim();
+                  if (v === '') {
+                    onUpdateDay(i, { date: undefined });
+                    return;
+                  }
+                  const n = Number(v);
+                  if (!Number.isFinite(n) || n < 1 || n > 31) return;
+                  onUpdateDay(i, { date: String(n) });
+                }}
+                title="מספר היום בחודש (1–31). יום בשבוע מתמלא אוטומטית."
               />
             )}
           />
@@ -95,8 +119,10 @@ export function DayMarkers({ days, usualMeasureTime, onUpdateDay, section }: Pro
         <MarkerRow label="היום בשבוע">
           <DayCells
             days={days}
-            render={(day) => (
-              <span className="derived">{weekdayFromDate(day.date) || '·'}</span>
+            render={(_, i) => (
+              <span className="derived">
+                {weekdayForCycleDay(days, i, month, year) || '·'}
+              </span>
             )}
           />
         </MarkerRow>

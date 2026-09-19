@@ -1,6 +1,7 @@
 export type MucusType = 'eggwhite' | 'creamy' | 'sticky' | 'period_dry_spot';
 
 export type DayEntry = {
+  /** Day of month (1–31), stored as string. Legacy ISO dates are still accepted. */
   date?: string;
   bbt?: number;
   measureTime?: string;
