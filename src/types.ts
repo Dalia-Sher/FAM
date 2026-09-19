@@ -64,9 +64,21 @@ export function emptyDay(): DayEntry {
   return {};
 }
 
+/** Works on iPhone over HTTP (crypto.randomUUID needs a secure context). */
+export function newId(): string {
+  try {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+  } catch {
+    /* fall through */
+  }
+  return `id-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export function createEmptyCycle(partial?: Partial<CycleMeta>): Cycle {
   return {
-    id: crypto.randomUUID(),
+    id: newId(),
     createdAt: new Date().toISOString(),
     meta: { ...partial },
     days: Array.from({ length: DAYS_COUNT }, () => emptyDay()),
