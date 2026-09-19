@@ -9,7 +9,7 @@
   --danger: #8b3a3a;
   --day-col: 2.15rem;
   --label-w: 11.5rem;
-  --bbt-row: 1.05rem;
+  --bbt-row: 1.25rem;
   --font: 'Heebo', 'Segoe UI', Tahoma, sans-serif;
   --display: 'Frank Ruhl Libre', 'Times New Roman', serif;
   color: var(--ink);
@@ -231,7 +231,9 @@ body {
 .row-label,
 .sticky-label {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
   padding: 0.25rem 0.4rem;
   font-size: 0.72rem;
   line-height: 1.2;
@@ -242,6 +244,7 @@ body {
 
 .day-cells {
   display: grid;
+  direction: ltr;
 }
 
 .day-cell {
@@ -253,8 +256,7 @@ body {
   font-size: 0.7rem;
 }
 
-.day-cell.is-fertile,
-.bbt-cell.is-fertile {
+.day-cell.is-fertile {
   background: var(--fertile);
 }
 
@@ -316,13 +318,22 @@ body {
 }
 
 .bbt-block {
-  align-items: stretch;
+  /* inherits grid from .marker-row, .bbt-block */
+}
+
+.bbt-hint {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 400;
+  color: var(--ink-muted);
+  margin-top: 0.15rem;
 }
 
 .bbt-grid-wrap {
   display: grid;
   grid-template-columns: 3rem 1fr;
   position: relative;
+  direction: ltr;
 }
 
 .bbt-y-axis {
@@ -344,12 +355,31 @@ body {
 }
 
 .bbt-grid {
-  display: grid;
   position: relative;
+  touch-action: none;
+  cursor: crosshair;
+  -webkit-user-select: none;
+  user-select: none;
+  direction: ltr;
   background-image:
-    linear-gradient(to left, var(--line) 1px, transparent 1px),
+    linear-gradient(to right, var(--line) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(197, 184, 164, 0.55) 1px, transparent 1px);
   background-size: var(--day-col) var(--bbt-row);
+  background-color: #fffdf8;
+}
+
+.bbt-fertile-cols {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bbt-fertile-col {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--fertile);
 }
 
 .bbt-line {
@@ -362,22 +392,19 @@ body {
   z-index: 1;
 }
 
-.bbt-cell {
-  border: none;
-  padding: 0;
-  margin: 0;
-  background: transparent;
-  cursor: crosshair;
-  position: relative;
-  z-index: 2;
+.bbt-values-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: var(--label-w) 1fr;
+  align-items: stretch;
+  border-top: 1px solid var(--line);
 }
 
-.bbt-cell:hover {
-  background: rgba(47, 93, 80, 0.1);
-}
-
-.bbt-cell.is-active {
-  background: transparent;
+.bbt-value-cell .cell-input {
+  font-size: 0.58rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .chart-notes {
@@ -477,13 +504,13 @@ body {
   .cell-input,
   .cell-select,
   .toggle-dot,
-  .bbt-cell {
+  .bbt-grid {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
   .day-cell.is-fertile,
-  .bbt-cell.is-fertile {
+  .bbt-fertile-col {
     background: #e8f0ed !important;
   }
 }

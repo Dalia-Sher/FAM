@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import type { DayEntry } from '../types';
 import { bbtLevels, DAYS_COUNT } from '../types';
 import { isFertileRelevant } from '../lib/helpers';
@@ -10,6 +10,7 @@ type Props = {
 
 export function BbtGrid({ days, onSetBbt }: Props) {
   const levels = useMemo(() => bbtLevels(), []);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const points = useMemo(() => {
     return days
@@ -24,20 +25,42 @@ export function BbtGrid({ days, onSetBbt }: Props) {
 
   const linePath = useMemo(() => {
     if (points.length < 2) return '';
-    const cellW = 1;
-    const cellH = 1;
     return points
       .map((p, i) => {
-        const x = p.col * cellW + cellW / 2;
-        const y = p.row * cellH + cellH / 2;
+        const x = p.col + 0.5;
+        const y = p.row + 0.5;
         return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
       })
       .join(' ');
   }, [points]);
 
+  const pickFromEvent = (clientX: number, clientY: number) => {
+    const el = gridRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+
+    const colW = rect.width / DAYS_COUNT;
+    const rowH = rect.height / levels.length;
+    // Grid is forced LTR so day 1 is on the left (matches SVG + day columns)
+    const col = Math.max(0, Math.min(DAYS_COUNT - 1, Math.floor(x / colW)));
+    const row = Math.max(0, Math.min(levels.length - 1, Math.floor(y / rowH)));
+    const temp = levels[row];
+    const current = days[col]?.bbt;
+    const same = current != null && Math.abs(current - temp) < 0.001;
+    onSetBbt(col, same ? undefined : temp);
+  };
+
   return (
     <div className="bbt-block">
-      <div className="row-label sticky-label">חום השחר (°C)</div>
+      <div className="row-label sticky-label">
+        חום השחר (°C)
+        <span className="bbt-hint">לחצי על הרשת לסימון</span>
+      </div>
       <div className="bbt-grid-wrap">
         <div className="bbt-y-axis" aria-hidden>
           {levels.map((t) => (
@@ -47,12 +70,34 @@ export function BbtGrid({ days, onSetBbt }: Props) {
           ))}
         </div>
         <div
+          ref={gridRef}
           className="bbt-grid"
+          role="img"
+          aria-label="רשת חום שחר — לחצי כדי לסמן טמפרטורה"
           style={{
-            gridTemplateColumns: `repeat(${DAYS_COUNT}, var(--day-col))`,
-            gridTemplateRows: `repeat(${levels.length}, var(--bbt-row))`,
+            height: `calc(${levels.length} * var(--bbt-row))`,
+            width: `calc(${DAYS_COUNT} * var(--day-col))`,
+          }}
+          onPointerDown={(e) => {
+            if (e.pointerType === 'touch') e.preventDefault();
+            pickFromEvent(e.clientX, e.clientY);
           }}
         >
+          <div className="bbt-fertile-cols" aria-hidden>
+            {days.map((day, col) =>
+              isFertileRelevant(day, col, days) ? (
+                <div
+                  key={col}
+                  className="bbt-fertile-col"
+                  style={{
+                    left: `calc(${col} * var(--day-col))`,
+                    width: 'var(--day-col)',
+                  }}
+                />
+              ) : null,
+            )}
+          </div>
+
           <svg
             className="bbt-line"
             viewBox={`0 0 ${DAYS_COUNT} ${levels.length}`}
@@ -60,37 +105,66 @@ export function BbtGrid({ days, onSetBbt }: Props) {
             aria-hidden
           >
             {linePath && (
-              <path d={linePath} fill="none" stroke="currentColor" strokeWidth="0.08" />
+              <path
+                d={linePath}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="0.12"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
             )}
             {points.map((p) => (
               <circle
                 key={p.col}
                 cx={p.col + 0.5}
                 cy={p.row + 0.5}
-                r="0.22"
+                r="0.28"
                 fill="currentColor"
+                stroke="#f7f2e8"
+                strokeWidth="0.06"
               />
             ))}
           </svg>
-          {levels.map((temp, row) =>
-            Array.from({ length: DAYS_COUNT }, (_, col) => {
-              const day = days[col] ?? {};
-              const active = day.bbt != null && Math.abs(day.bbt - temp) < 0.001;
-              const fertile = isFertileRelevant(day, col, days);
-              return (
-                <button
-                  key={`${row}-${col}`}
-                  type="button"
-                  className={`bbt-cell${active ? ' is-active' : ''}${fertile ? ' is-fertile' : ''}`}
-                  style={{ gridColumn: col + 1, gridRow: row + 1 }}
-                  title={`יום ${col + 1}: ${temp.toFixed(2)}°C`}
-                  aria-label={`יום ${col + 1}, חום ${temp.toFixed(2)}`}
-                  aria-pressed={active}
-                  onClick={() => onSetBbt(col, active ? undefined : temp)}
+        </div>
+      </div>
+
+      <div className="bbt-values-row">
+        <div className="row-label sticky-label">טמפ׳ שנבחרה</div>
+        <div
+          className="day-cells"
+          style={{ gridTemplateColumns: `repeat(${DAYS_COUNT}, var(--day-col))` }}
+        >
+          {Array.from({ length: DAYS_COUNT }, (_, i) => {
+            const bbt = days[i]?.bbt;
+            return (
+              <div key={i} className="day-cell bbt-value-cell">
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  step={0.05}
+                  min={36.05}
+                  max={37.1}
+                  className="cell-input"
+                  placeholder="—"
+                  value={bbt ?? ''}
+                  title={`יום ${i + 1}`}
+                  onChange={(e) => {
+                    const v = e.target.value.trim();
+                    if (v === '') {
+                      onSetBbt(i, undefined);
+                      return;
+                    }
+                    const n = Number(v);
+                    if (!Number.isFinite(n)) return;
+                    const rounded = Math.round(n * 20) / 20;
+                    if (rounded < 36.05 || rounded > 37.1) return;
+                    onSetBbt(i, rounded);
+                  }}
                 />
-              );
-            }),
-          )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
