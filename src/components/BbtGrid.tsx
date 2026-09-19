@@ -141,7 +141,7 @@ export function BbtGrid({ days, onSetBbt }: Props) {
       <div className="bbt-values-row">
         <div className="row-label sticky-label">
           טמפ׳ שנבחרה
-          <span className="bbt-hint">× לביטול</span>
+          <span className="bbt-hint">לחצי בטל כדי למחוק</span>
         </div>
         <div
           className="day-cells"
@@ -151,17 +151,6 @@ export function BbtGrid({ days, onSetBbt }: Props) {
             const bbt = days[i]?.bbt;
             return (
               <div key={i} className={`day-cell bbt-value-cell${bbt != null ? ' has-value' : ''}`}>
-                {bbt != null ? (
-                  <button
-                    type="button"
-                    className="bbt-clear"
-                    title={`בטלי טמפרטורה ליום ${i + 1}`}
-                    aria-label={`בטלי טמפרטורה ליום ${i + 1}`}
-                    onClick={() => onSetBbt(i, undefined)}
-                  >
-                    ×
-                  </button>
-                ) : null}
                 <input
                   type="number"
                   inputMode="decimal"
@@ -185,6 +174,19 @@ export function BbtGrid({ days, onSetBbt }: Props) {
                     onSetBbt(i, rounded);
                   }}
                 />
+                {bbt != null ? (
+                  <button
+                    type="button"
+                    className="bbt-clear"
+                    title={`בטלי טמפרטורה ליום ${i + 1}`}
+                    aria-label={`בטלי טמפרטורה ליום ${i + 1}`}
+                    onClick={() => onSetBbt(i, undefined)}
+                  >
+                    בטל
+                  </button>
+                ) : (
+                  <span className="bbt-clear-placeholder"> </span>
+                )}
               </div>
             );
           })}
