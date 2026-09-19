@@ -1,0 +1,6 @@
+/* Base reset — chart styles live in styles/chart.css */
+html,
+body,
+#root {
+  min-height: 100%;
+}
