@@ -93,6 +93,12 @@ export function ChartNotes({ meta, onChange }: Props) {
           <li>
             <strong>בצקי, פירורי, אטום · דביק:</strong> תחושה יבשה או דביקה.
           </li>
+          <li>
+            <strong>וסת:</strong> דימום וסתי.
+          </li>
+          <li>
+            <strong>יבש:</strong> ללא ריר מורגש / תחושת יובש.
+          </li>
         </ul>
       </aside>
     </section>

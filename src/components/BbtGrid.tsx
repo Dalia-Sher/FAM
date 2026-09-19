@@ -84,7 +84,6 @@ export function BbtGrid({ days, onSetBbt }: Props) {
             aria-label="רשת חום שחר — לחצי כדי לסמן טמפרטורה"
             style={{
               height: `calc(${levels.length} * var(--bbt-row))`,
-              width: `calc(${DAYS_COUNT} * var(--day-col))`,
             }}
             onPointerDown={(e) => {
               if (e.pointerType === 'touch') e.preventDefault();
@@ -144,10 +143,7 @@ export function BbtGrid({ days, onSetBbt }: Props) {
           <span className="bbt-hint">לחצי בטל כדי למחוק</span>
         </div>
         <div className="axis-gutter" aria-hidden />
-        <div
-          className="day-cells"
-          style={{ gridTemplateColumns: `repeat(${DAYS_COUNT}, var(--day-col))` }}
-        >
+        <div className="day-cells">
           {Array.from({ length: DAYS_COUNT }, (_, i) => {
             const bbt = days[i]?.bbt;
             return (
@@ -156,17 +152,14 @@ export function BbtGrid({ days, onSetBbt }: Props) {
                 className={`day-cell bbt-value-cell${bbt != null ? ' has-value' : ''}`}
               >
                 <input
-                  type="number"
+                  type="text"
                   inputMode="decimal"
-                  step={0.05}
-                  min={36.05}
-                  max={37.1}
                   className="cell-input"
                   placeholder="—"
                   value={bbt ?? ''}
                   title={`יום ${i + 1}`}
                   onChange={(e) => {
-                    const v = e.target.value.trim();
+                    const v = e.target.value.trim().replace(',', '.');
                     if (v === '') {
                       onSetBbt(i, undefined);
                       return;

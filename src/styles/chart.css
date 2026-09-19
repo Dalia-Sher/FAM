@@ -10,6 +10,7 @@
   --day-col: 2.15rem;
   --label-w: 11.5rem;
   --axis-w: 3rem;
+  --days-width: calc(40 * var(--day-col));
   --bbt-row: 1.25rem;
   --font: 'Heebo', 'Segoe UI', Tahoma, sans-serif;
   --display: 'Frank Ruhl Libre', 'Times New Roman', serif;
@@ -211,16 +212,44 @@ body {
 }
 
 .chart-body {
-  min-width: calc(var(--label-w) + var(--axis-w) + 40 * var(--day-col) + 1rem);
+  min-width: calc(var(--days-width) + var(--axis-w) + var(--label-w) + 1rem);
+  /* Keep day columns physically identical on every row (mobile Safari safe). */
 }
 
 .marker-row,
 .bbt-block,
 .bbt-values-row {
   display: grid;
-  grid-template-columns: var(--label-w) var(--axis-w) 1fr;
+  direction: ltr;
+  grid-template-columns: var(--days-width) var(--axis-w) var(--label-w);
   align-items: stretch;
   border-bottom: 1px solid var(--line);
+}
+
+/* DOM order is label, axis, days — place them LTR as days | axis | label */
+.marker-row > .day-cells,
+.bbt-block > .bbt-grid-wrap,
+.bbt-values-row > .day-cells {
+  grid-column: 1;
+  grid-row: 1;
+  width: var(--days-width);
+  min-width: var(--days-width);
+  max-width: var(--days-width);
+}
+
+.marker-row > .axis-gutter,
+.bbt-block > .bbt-y-axis,
+.bbt-values-row > .axis-gutter {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.marker-row > .row-label,
+.bbt-block > .row-label,
+.bbt-values-row > .row-label {
+  grid-column: 3;
+  grid-row: 1;
+  direction: rtl;
 }
 
 .axis-gutter {
@@ -248,22 +277,27 @@ body {
   border-inline-end: 1px solid var(--line);
   background: #f3ecdf;
   position: sticky;
-  inset-inline-start: 0;
+  inset-inline-end: 0;
   z-index: 2;
 }
 
 .day-cells {
   display: grid;
   direction: ltr;
+  grid-template-columns: repeat(40, minmax(0, var(--day-col)));
+  box-sizing: border-box;
 }
 
 .day-cell {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 0;
   min-height: 1.7rem;
   border-inline-start: 1px solid var(--line);
   font-size: 0.7rem;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .day-cell.is-fertile {
@@ -283,6 +317,8 @@ body {
 .cell-input,
 .cell-select {
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   height: 100%;
   min-height: 1.7rem;
   border: none;
@@ -290,6 +326,20 @@ body {
   text-align: center;
   padding: 0;
   font-size: 0.62rem;
+  box-sizing: border-box;
+}
+
+/* iOS number inputs force a large min-width and break column alignment */
+input[type='number'].cell-input {
+  min-width: 0;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type='number'].cell-input::-webkit-outer-spin-button,
+input[type='number'].cell-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .cell-input:focus,
@@ -342,7 +392,9 @@ body {
 .bbt-grid-wrap {
   position: relative;
   direction: ltr;
-  min-width: 0;
+  width: var(--days-width);
+  min-width: var(--days-width);
+  max-width: var(--days-width);
 }
 
 .bbt-y-axis {
@@ -371,6 +423,8 @@ body {
   -webkit-user-select: none;
   user-select: none;
   direction: ltr;
+  width: 100%;
+  box-sizing: border-box;
   background-image:
     linear-gradient(to right, var(--line) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(197, 184, 164, 0.55) 1px, transparent 1px);
@@ -426,19 +480,21 @@ body {
 }
 
 .bbt-clear {
-  width: calc(100% - 2px);
-  margin: 0 1px;
+  width: 100%;
+  margin: 0;
   border: 1px solid var(--danger);
   border-radius: 2px;
   background: #fff8f8;
   color: var(--danger);
   font: inherit;
-  font-size: 0.55rem;
+  font-size: 0.52rem;
   font-weight: 700;
-  line-height: 1.2;
-  padding: 0.2rem 0;
+  line-height: 1.1;
+  padding: 0.15rem 0;
   cursor: pointer;
-  min-height: 1.25rem;
+  min-height: 1.15rem;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .bbt-clear:active {

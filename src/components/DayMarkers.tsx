@@ -23,7 +23,8 @@ const MUCUS_OPTIONS: { value: MucusType | ''; label: string; short: string }[] =
   { value: 'eggwhite', label: 'דמוי חלבון־ביצה', short: 'ח׳ב' },
   { value: 'creamy', label: 'חלבי', short: 'חל' },
   { value: 'sticky', label: 'דביק', short: 'דב' },
-  { value: 'period_dry_spot', label: 'וסת / יובש / הכתמה', short: 'ו/י' },
+  { value: 'period', label: 'וסת', short: 'וסת' },
+  { value: 'dry', label: 'יבש', short: 'יבש' },
 ];
 
 function DayCells({
@@ -36,10 +37,7 @@ function DayCells({
   render: (day: DayEntry, i: number) => ReactNode;
 }) {
   return (
-    <div
-      className={`day-cells ${className ?? ''}`}
-      style={{ gridTemplateColumns: `repeat(${DAYS_COUNT}, var(--day-col))` }}
-    >
+    <div className={`day-cells ${className ?? ''}`}>
       {Array.from({ length: DAYS_COUNT }, (_, i) => {
         const day = days[i] ?? {};
         const fertile = isFertileRelevant(day, i, days);

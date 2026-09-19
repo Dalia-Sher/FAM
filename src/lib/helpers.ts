@@ -200,8 +200,10 @@ export function mucusLabel(m?: MucusType): string {
       return 'חלבי';
     case 'sticky':
       return 'דביק';
-    case 'period_dry_spot':
-      return 'וסת / יובש / הכתמה';
+    case 'period':
+      return 'וסת';
+    case 'dry':
+      return 'יבש';
     default:
       return '';
   }

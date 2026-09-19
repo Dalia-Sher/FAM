@@ -1,14 +1,37 @@
-import type { AppState, Cycle } from '../types';
+import type { AppState, Cycle, DayEntry, MucusType } from '../types';
 import { createEmptyCycle } from '../types';
 import { ensureDays } from './helpers';
 
 const STORAGE_KEY = 'fam-chart-v1';
 
+const VALID_MUCUS = new Set<MucusType>([
+  'eggwhite',
+  'creamy',
+  'sticky',
+  'period',
+  'dry',
+]);
+
+function normalizeMucus(value: unknown): MucusType | undefined {
+  if (typeof value !== 'string') return undefined;
+  // Legacy combined option from earlier versions
+  if (value === 'period_dry_spot') return undefined;
+  if (VALID_MUCUS.has(value as MucusType)) return value as MucusType;
+  return undefined;
+}
+
+function normalizeDay(day: DayEntry): DayEntry {
+  return {
+    ...day,
+    mucus: normalizeMucus(day.mucus),
+  };
+}
+
 function normalizeCycle(raw: Cycle): Cycle {
   return {
     ...raw,
     meta: raw.meta ?? {},
-    days: ensureDays(raw.days ?? []),
+    days: ensureDays(raw.days ?? []).map(normalizeDay),
   };
 }
 
