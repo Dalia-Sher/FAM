@@ -9,6 +9,7 @@
   --danger: #8b3a3a;
   --day-col: 2.15rem;
   --label-w: 11.5rem;
+  --axis-w: 3rem;
   --bbt-row: 1.25rem;
   --font: 'Heebo', 'Segoe UI', Tahoma, sans-serif;
   --display: 'Frank Ruhl Libre', 'Times New Roman', serif;
@@ -210,15 +211,21 @@ body {
 }
 
 .chart-body {
-  min-width: calc(var(--label-w) + 40 * var(--day-col) + 3.2rem);
+  min-width: calc(var(--label-w) + var(--axis-w) + 40 * var(--day-col) + 1rem);
 }
 
 .marker-row,
-.bbt-block {
+.bbt-block,
+.bbt-values-row {
   display: grid;
-  grid-template-columns: var(--label-w) 1fr;
+  grid-template-columns: var(--label-w) var(--axis-w) 1fr;
   align-items: stretch;
   border-bottom: 1px solid var(--line);
+}
+
+.axis-gutter {
+  border-inline-end: 1px solid var(--line);
+  background: #f3ecdf;
 }
 
 .sticky-days {
@@ -321,7 +328,7 @@ body {
 }
 
 .bbt-block {
-  /* inherits grid from .marker-row, .bbt-block */
+  /* 3-column layout shared with marker rows */
 }
 
 .bbt-hint {
@@ -333,10 +340,9 @@ body {
 }
 
 .bbt-grid-wrap {
-  display: grid;
-  grid-template-columns: 3rem 1fr;
   position: relative;
   direction: ltr;
+  min-width: 0;
 }
 
 .bbt-y-axis {
@@ -344,6 +350,7 @@ body {
   flex-direction: column;
   border-inline-end: 1px solid var(--line);
   background: #f3ecdf;
+  direction: ltr;
 }
 
 .bbt-y-tick {
@@ -396,10 +403,6 @@ body {
 }
 
 .bbt-values-row {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: var(--label-w) 1fr;
-  align-items: stretch;
   border-top: 1px solid var(--line);
 }
 

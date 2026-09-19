@@ -46,7 +46,6 @@ export function BbtGrid({ days, onSetBbt }: Props) {
 
     const colW = rect.width / DAYS_COUNT;
     const rowH = rect.height / levels.length;
-    // Grid is forced LTR so day 1 is on the left (matches SVG + day columns)
     const col = Math.max(0, Math.min(DAYS_COUNT - 1, Math.floor(x / colW)));
     const row = Math.max(0, Math.min(levels.length - 1, Math.floor(y / rowH)));
     const temp = levels[row];
@@ -54,7 +53,6 @@ export function BbtGrid({ days, onSetBbt }: Props) {
 
     if (current != null) {
       const currentRow = levels.findIndex((l) => Math.abs(l - current) < 0.001);
-      // Tap near the existing point (or exact same cell) to clear a mistake
       if (currentRow >= 0 && Math.abs(currentRow - row) <= 2) {
         onSetBbt(col, undefined);
         return;
@@ -65,12 +63,12 @@ export function BbtGrid({ days, onSetBbt }: Props) {
   };
 
   return (
-    <div className="bbt-block">
-      <div className="row-label sticky-label">
-        חום השחר (°C)
-        <span className="bbt-hint">לחצי לסימון · לחצי שוב על הנקודה לביטול</span>
-      </div>
-      <div className="bbt-grid-wrap">
+    <>
+      <div className="bbt-block">
+        <div className="row-label sticky-label">
+          חום השחר (°C)
+          <span className="bbt-hint">לחצי לסימון · לחצי שוב על הנקודה לביטול</span>
+        </div>
         <div className="bbt-y-axis" aria-hidden>
           {levels.map((t) => (
             <div key={t} className="bbt-y-tick">
@@ -78,63 +76,65 @@ export function BbtGrid({ days, onSetBbt }: Props) {
             </div>
           ))}
         </div>
-        <div
-          ref={gridRef}
-          className="bbt-grid"
-          role="img"
-          aria-label="רשת חום שחר — לחצי כדי לסמן טמפרטורה"
-          style={{
-            height: `calc(${levels.length} * var(--bbt-row))`,
-            width: `calc(${DAYS_COUNT} * var(--day-col))`,
-          }}
-          onPointerDown={(e) => {
-            if (e.pointerType === 'touch') e.preventDefault();
-            pickFromEvent(e.clientX, e.clientY);
-          }}
-        >
-          <div className="bbt-fertile-cols" aria-hidden>
-            {days.map((day, col) =>
-              isFertileRelevant(day, col, days) ? (
-                <div
-                  key={col}
-                  className="bbt-fertile-col"
-                  style={{
-                    left: `calc(${col} * var(--day-col))`,
-                    width: 'var(--day-col)',
-                  }}
-                />
-              ) : null,
-            )}
-          </div>
-
-          <svg
-            className="bbt-line"
-            viewBox={`0 0 ${DAYS_COUNT} ${levels.length}`}
-            preserveAspectRatio="none"
-            aria-hidden
+        <div className="bbt-grid-wrap">
+          <div
+            ref={gridRef}
+            className="bbt-grid"
+            role="img"
+            aria-label="רשת חום שחר — לחצי כדי לסמן טמפרטורה"
+            style={{
+              height: `calc(${levels.length} * var(--bbt-row))`,
+              width: `calc(${DAYS_COUNT} * var(--day-col))`,
+            }}
+            onPointerDown={(e) => {
+              if (e.pointerType === 'touch') e.preventDefault();
+              pickFromEvent(e.clientX, e.clientY);
+            }}
           >
-            {linePath && (
-              <path
-                d={linePath}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="0.12"
-                strokeLinejoin="round"
-                strokeLinecap="round"
-              />
-            )}
-            {points.map((p) => (
-              <circle
-                key={p.col}
-                cx={p.col + 0.5}
-                cy={p.row + 0.5}
-                r="0.28"
-                fill="currentColor"
-                stroke="#f7f2e8"
-                strokeWidth="0.06"
-              />
-            ))}
-          </svg>
+            <div className="bbt-fertile-cols" aria-hidden>
+              {days.map((day, col) =>
+                isFertileRelevant(day, col, days) ? (
+                  <div
+                    key={col}
+                    className="bbt-fertile-col"
+                    style={{
+                      left: `calc(${col} * var(--day-col))`,
+                      width: 'var(--day-col)',
+                    }}
+                  />
+                ) : null,
+              )}
+            </div>
+
+            <svg
+              className="bbt-line"
+              viewBox={`0 0 ${DAYS_COUNT} ${levels.length}`}
+              preserveAspectRatio="none"
+              aria-hidden
+            >
+              {linePath && (
+                <path
+                  d={linePath}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.12"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                />
+              )}
+              {points.map((p) => (
+                <circle
+                  key={p.col}
+                  cx={p.col + 0.5}
+                  cy={p.row + 0.5}
+                  r="0.28"
+                  fill="currentColor"
+                  stroke="#f7f2e8"
+                  strokeWidth="0.06"
+                />
+              ))}
+            </svg>
+          </div>
         </div>
       </div>
 
@@ -143,6 +143,7 @@ export function BbtGrid({ days, onSetBbt }: Props) {
           טמפ׳ שנבחרה
           <span className="bbt-hint">לחצי בטל כדי למחוק</span>
         </div>
+        <div className="axis-gutter" aria-hidden />
         <div
           className="day-cells"
           style={{ gridTemplateColumns: `repeat(${DAYS_COUNT}, var(--day-col))` }}
@@ -150,7 +151,10 @@ export function BbtGrid({ days, onSetBbt }: Props) {
           {Array.from({ length: DAYS_COUNT }, (_, i) => {
             const bbt = days[i]?.bbt;
             return (
-              <div key={i} className={`day-cell bbt-value-cell${bbt != null ? ' has-value' : ''}`}>
+              <div
+                key={i}
+                className={`day-cell bbt-value-cell${bbt != null ? ' has-value' : ''}`}
+              >
                 <input
                   type="number"
                   inputMode="decimal"
@@ -192,6 +196,6 @@ export function BbtGrid({ days, onSetBbt }: Props) {
           })}
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -65,6 +65,7 @@ function MarkerRow({
   return (
     <div className={`marker-row${sticky ? ' sticky-days' : ''}`}>
       <div className="row-label sticky-label">{label}</div>
+      <div className="axis-gutter" aria-hidden />
       {children}
     </div>
   );
