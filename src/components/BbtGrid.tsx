@@ -51,15 +51,24 @@ export function BbtGrid({ days, onSetBbt }: Props) {
     const row = Math.max(0, Math.min(levels.length - 1, Math.floor(y / rowH)));
     const temp = levels[row];
     const current = days[col]?.bbt;
-    const same = current != null && Math.abs(current - temp) < 0.001;
-    onSetBbt(col, same ? undefined : temp);
+
+    if (current != null) {
+      const currentRow = levels.findIndex((l) => Math.abs(l - current) < 0.001);
+      // Tap near the existing point (or exact same cell) to clear a mistake
+      if (currentRow >= 0 && Math.abs(currentRow - row) <= 2) {
+        onSetBbt(col, undefined);
+        return;
+      }
+    }
+
+    onSetBbt(col, temp);
   };
 
   return (
     <div className="bbt-block">
       <div className="row-label sticky-label">
         חום השחר (°C)
-        <span className="bbt-hint">לחצי על הרשת לסימון</span>
+        <span className="bbt-hint">לחצי לסימון · לחצי שוב על הנקודה לביטול</span>
       </div>
       <div className="bbt-grid-wrap">
         <div className="bbt-y-axis" aria-hidden>
@@ -130,7 +139,10 @@ export function BbtGrid({ days, onSetBbt }: Props) {
       </div>
 
       <div className="bbt-values-row">
-        <div className="row-label sticky-label">טמפ׳ שנבחרה</div>
+        <div className="row-label sticky-label">
+          טמפ׳ שנבחרה
+          <span className="bbt-hint">× לביטול</span>
+        </div>
         <div
           className="day-cells"
           style={{ gridTemplateColumns: `repeat(${DAYS_COUNT}, var(--day-col))` }}
@@ -138,7 +150,18 @@ export function BbtGrid({ days, onSetBbt }: Props) {
           {Array.from({ length: DAYS_COUNT }, (_, i) => {
             const bbt = days[i]?.bbt;
             return (
-              <div key={i} className="day-cell bbt-value-cell">
+              <div key={i} className={`day-cell bbt-value-cell${bbt != null ? ' has-value' : ''}`}>
+                {bbt != null ? (
+                  <button
+                    type="button"
+                    className="bbt-clear"
+                    title={`בטלי טמפרטורה ליום ${i + 1}`}
+                    aria-label={`בטלי טמפרטורה ליום ${i + 1}`}
+                    onClick={() => onSetBbt(i, undefined)}
+                  >
+                    ×
+                  </button>
+                ) : null}
                 <input
                   type="number"
                   inputMode="decimal"
