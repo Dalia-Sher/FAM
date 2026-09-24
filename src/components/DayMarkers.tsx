@@ -41,8 +41,13 @@ function DayCells({
       {Array.from({ length: DAYS_COUNT }, (_, i) => {
         const day = days[i] ?? {};
         const fertile = isFertileRelevant(day, i, days);
+        // Place day 1 on the right (column 40), day 40 on the left (column 1)
         return (
-          <div key={i} className={`day-cell${fertile ? ' is-fertile' : ''}`}>
+          <div
+            key={i}
+            className={`day-cell${fertile ? ' is-fertile' : ''}`}
+            style={{ gridColumn: DAYS_COUNT - i }}
+          >
             {render(day, i)}
           </div>
         );

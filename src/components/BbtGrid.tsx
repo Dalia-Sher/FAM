@@ -153,6 +153,7 @@ export function BbtGrid({ days, onSetBbt }: Props) {
               <div
                 key={i}
                 className={`day-cell bbt-value-cell${bbt != null ? ' has-value' : ''}`}
+                style={{ gridColumn: DAYS_COUNT - i }}
               >
                 <input
                   type="text"

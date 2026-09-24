@@ -209,12 +209,13 @@ body {
   margin: 0 -0.25rem;
   padding-bottom: 0.5rem;
   -webkit-overflow-scrolling: touch;
-  /* RTL so the view starts at day 1 (right side, next to labels). */
+  /* Start at the right so day 1 (next to labels) is in view first. */
   direction: rtl;
 }
 
 .chart-body {
   min-width: calc(var(--days-width) + var(--axis-w) + var(--label-w) + 1rem);
+  /* Keep row geometry LTR; day order is controlled by grid-column placement. */
   direction: ltr;
 }
 
@@ -285,8 +286,7 @@ body {
 
 .day-cells {
   display: grid;
-  /* Day 1 on the right → day 40 on the left */
-  direction: rtl;
+  direction: ltr;
   grid-template-columns: repeat(40, minmax(0, var(--day-col)));
   box-sizing: border-box;
 }
