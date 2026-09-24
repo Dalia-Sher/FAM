@@ -40,13 +40,16 @@ export function BbtGrid({ days, onSetBbt }: Props) {
     const rect = el.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return;
 
+    // Element is scaleX(-1); getBoundingClientRect is in screen space.
+    // Screen left = day 40, screen right = day 1.
     const x = clientX - rect.left;
     const y = clientY - rect.top;
     if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
 
     const colW = rect.width / DAYS_COUNT;
     const rowH = rect.height / levels.length;
-    const col = Math.max(0, Math.min(DAYS_COUNT - 1, Math.floor(x / colW)));
+    const visualCol = Math.max(0, Math.min(DAYS_COUNT - 1, Math.floor(x / colW)));
+    const col = DAYS_COUNT - 1 - visualCol;
     const row = Math.max(0, Math.min(levels.length - 1, Math.floor(y / rowH)));
     const temp = levels[row];
     const current = days[col]?.bbt;

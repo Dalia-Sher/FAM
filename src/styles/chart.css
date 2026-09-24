@@ -209,11 +209,13 @@ body {
   margin: 0 -0.25rem;
   padding-bottom: 0.5rem;
   -webkit-overflow-scrolling: touch;
+  /* RTL so the view starts at day 1 (right side, next to labels). */
+  direction: rtl;
 }
 
 .chart-body {
   min-width: calc(var(--days-width) + var(--axis-w) + var(--label-w) + 1rem);
-  /* Keep day columns physically identical on every row (mobile Safari safe). */
+  direction: ltr;
 }
 
 .marker-row,
@@ -283,7 +285,8 @@ body {
 
 .day-cells {
   display: grid;
-  direction: ltr;
+  /* Day 1 on the right → day 40 on the left */
+  direction: rtl;
   grid-template-columns: repeat(40, minmax(0, var(--day-col)));
   box-sizing: border-box;
 }
@@ -425,6 +428,8 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   direction: ltr;
   width: 100%;
   box-sizing: border-box;
+  /* Mirror so day 1 is on the right, matching the day-cells row */
+  transform: scaleX(-1);
   background-image:
     linear-gradient(to right, var(--line) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(197, 184, 164, 0.55) 1px, transparent 1px);
