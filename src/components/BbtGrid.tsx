@@ -1,6 +1,6 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { DayEntry } from '../types';
-import { bbtLevels, DAYS_COUNT } from '../types';
+import { BBT_MAX, BBT_MIN, BBT_STEP, bbtLevels, DAYS_COUNT } from '../types';
 import { isFertileRelevant } from '../lib/helpers';
 
 type Props = {
@@ -8,17 +8,83 @@ type Props = {
   onSetBbt: (dayIndex: number, bbt: number | undefined) => void;
 };
 
+function snapBbt(n: number): number | undefined {
+  if (!Number.isFinite(n)) return undefined;
+  if (n < BBT_MIN - BBT_STEP / 2 || n > BBT_MAX + BBT_STEP / 2) return undefined;
+  const snapped = Math.round(n / BBT_STEP) * BBT_STEP;
+  return Math.round(snapped * 100) / 100;
+}
+
+function nearestRow(levels: number[], temp: number): number {
+  let best = 0;
+  let bestDist = Infinity;
+  for (let i = 0; i < levels.length; i++) {
+    const d = Math.abs(levels[i]! - temp);
+    if (d < bestDist) {
+      bestDist = d;
+      best = i;
+    }
+  }
+  return best;
+}
+
+function TempInput({
+  dayIndex,
+  bbt,
+  onSetBbt,
+}: {
+  dayIndex: number;
+  bbt?: number;
+  onSetBbt: (dayIndex: number, bbt: number | undefined) => void;
+}) {
+  const [draft, setDraft] = useState(() => (bbt != null ? bbt.toFixed(2) : ''));
+
+  useEffect(() => {
+    setDraft(bbt != null ? bbt.toFixed(2) : '');
+  }, [bbt]);
+
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      className="cell-input"
+      placeholder=""
+      value={draft}
+      title={`יום ${dayIndex + 1} — הזיני טמפרטורה`}
+      aria-label={`טמפרטורה ליום ${dayIndex + 1}`}
+      onChange={(e) => setDraft(e.target.value.replace(',', '.'))}
+      onBlur={() => {
+        const v = draft.trim();
+        if (v === '') {
+          onSetBbt(dayIndex, undefined);
+          setDraft('');
+          return;
+        }
+        const snapped = snapBbt(Number(v));
+        if (snapped == null) {
+          setDraft(bbt != null ? bbt.toFixed(2) : '');
+          return;
+        }
+        onSetBbt(dayIndex, snapped);
+        setDraft(snapped.toFixed(2));
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          (e.target as HTMLInputElement).blur();
+        }
+      }}
+    />
+  );
+}
+
 export function BbtGrid({ days, onSetBbt }: Props) {
   const levels = useMemo(() => bbtLevels(), []);
-  const gridRef = useRef<HTMLDivElement>(null);
 
   const points = useMemo(() => {
     return days
       .map((d, i) => {
         if (d.bbt == null) return null;
-        const row = levels.findIndex((l) => Math.abs(l - d.bbt!) < 0.001);
-        if (row < 0) return null;
-        return { col: i, row, temp: d.bbt };
+        return { col: i, row: nearestRow(levels, d.bbt), temp: d.bbt };
       })
       .filter(Boolean) as { col: number; row: number; temp: number }[];
   }, [days, levels]);
@@ -34,43 +100,12 @@ export function BbtGrid({ days, onSetBbt }: Props) {
       .join(' ');
   }, [points]);
 
-  const pickFromEvent = (clientX: number, clientY: number) => {
-    const el = gridRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    if (rect.width <= 0 || rect.height <= 0) return;
-
-    // Element is scaleX(-1); getBoundingClientRect is in screen space.
-    // Screen left = day 40, screen right = day 1.
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
-
-    const colW = rect.width / DAYS_COUNT;
-    const rowH = rect.height / levels.length;
-    const visualCol = Math.max(0, Math.min(DAYS_COUNT - 1, Math.floor(x / colW)));
-    const col = DAYS_COUNT - 1 - visualCol;
-    const row = Math.max(0, Math.min(levels.length - 1, Math.floor(y / rowH)));
-    const temp = levels[row];
-    const current = days[col]?.bbt;
-
-    if (current != null) {
-      const currentRow = levels.findIndex((l) => Math.abs(l - current) < 0.001);
-      if (currentRow >= 0 && Math.abs(currentRow - row) <= 2) {
-        onSetBbt(col, undefined);
-        return;
-      }
-    }
-
-    onSetBbt(col, temp);
-  };
-
   return (
     <>
       <div className="bbt-block">
         <div className="row-label sticky-label">
           חום השחר (°C)
-          <span className="bbt-hint">לחצי לסימון · לחצי שוב על הנקודה לביטול</span>
+          <span className="bbt-hint">הזיני טמפ׳ בשורה למטה — העיגול יופיע כאן</span>
         </div>
         <div className="bbt-y-axis" aria-hidden>
           {levels.map((t) => (
@@ -81,16 +116,11 @@ export function BbtGrid({ days, onSetBbt }: Props) {
         </div>
         <div className="bbt-grid-wrap">
           <div
-            ref={gridRef}
-            className="bbt-grid"
+            className="bbt-grid bbt-grid-readonly"
             role="img"
-            aria-label="רשת חום שחר — לחצי כדי לסמן טמפרטורה"
+            aria-label="רשת חום שחר — מוצגת לפי הטמפרטורות שהוזנו למטה"
             style={{
               height: `calc(${levels.length} * var(--bbt-row))`,
-            }}
-            onPointerDown={(e) => {
-              if (e.pointerType === 'touch') e.preventDefault();
-              pickFromEvent(e.clientX, e.clientY);
             }}
           >
             <div className="bbt-fertile-cols" aria-hidden>
@@ -142,8 +172,8 @@ export function BbtGrid({ days, onSetBbt }: Props) {
 
       <div className="bbt-values-row">
         <div className="row-label sticky-label">
-          טמפ׳ שנבחרה
-          <span className="bbt-hint">לחצי בטל כדי למחוק</span>
+          טמפ׳ (°C)
+          <span className="bbt-hint">תא ריק = הזנה ידנית · בטל למחיקה</span>
         </div>
         <div className="axis-gutter" aria-hidden />
         <div className="day-cells">
@@ -154,26 +184,7 @@ export function BbtGrid({ days, onSetBbt }: Props) {
                 key={i}
                 className={`day-cell bbt-value-cell${bbt != null ? ' has-value' : ''}`}
               >
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  className="cell-input"
-                  placeholder="—"
-                  value={bbt ?? ''}
-                  title={`יום ${i + 1}`}
-                  onChange={(e) => {
-                    const v = e.target.value.trim().replace(',', '.');
-                    if (v === '') {
-                      onSetBbt(i, undefined);
-                      return;
-                    }
-                    const n = Number(v);
-                    if (!Number.isFinite(n)) return;
-                    const rounded = Math.round(n * 20) / 20;
-                    if (rounded < 36.05 || rounded > 37.1) return;
-                    onSetBbt(i, rounded);
-                  }}
-                />
+                <TempInput dayIndex={i} bbt={bbt} onSetBbt={onSetBbt} />
                 {bbt != null ? (
                   <button
                     type="button"

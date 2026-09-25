@@ -421,10 +421,6 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
 
 .bbt-grid {
   position: relative;
-  touch-action: none;
-  cursor: crosshair;
-  -webkit-user-select: none;
-  user-select: none;
   direction: ltr;
   width: 100%;
   box-sizing: border-box;
@@ -435,6 +431,14 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
     linear-gradient(to bottom, rgba(197, 184, 164, 0.55) 1px, transparent 1px);
   background-size: var(--day-col) var(--bbt-row);
   background-color: #fffdf8;
+}
+
+.bbt-grid-readonly {
+  cursor: default;
+  touch-action: auto;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
 }
 
 .bbt-fertile-cols {
