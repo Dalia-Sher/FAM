@@ -10,8 +10,7 @@
   --day-col: 2.15rem;
   --label-w: 11.5rem;
   --axis-w: 3rem;
-  --visible-days: 40;
-  --days-width: calc(var(--visible-days) * var(--day-col));
+  --days-width: calc(40 * var(--day-col));
   --bbt-row: 1.25rem;
   --font: 'Heebo', 'Segoe UI', Tahoma, sans-serif;
   --display: 'Frank Ruhl Libre', 'Times New Roman', serif;
@@ -115,68 +114,20 @@ body {
 
 .toolbar-actions button {
   cursor: pointer;
-  padding: 0.55rem 0.85rem;
-  min-height: 2.75rem;
+  padding: 0.35rem 0.7rem;
   background: var(--accent);
   color: #f8f6f1;
   border-color: var(--accent);
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
 }
 
 .toolbar-actions button:hover {
   filter: brightness(1.08);
 }
 
-.toolbar-actions button:disabled {
-  opacity: 0.65;
-  cursor: wait;
-}
-
 .toolbar-actions button.danger {
   background: transparent;
   color: var(--danger);
   border-color: var(--danger);
-}
-
-.toolbar-actions button.btn-print {
-  font-weight: 700;
-  box-shadow: 0 0 0 2px rgba(47, 93, 80, 0.25);
-}
-
-.mobile-save-bar {
-  display: none;
-}
-
-@media (max-width: 700px), (pointer: coarse) {
-  .toolbar {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-  }
-
-  .mobile-save-bar {
-    display: block;
-    width: 100%;
-    margin: 0 0 0.75rem;
-    padding: 0.9rem 1rem;
-    min-height: 3.25rem;
-    border: none;
-    border-radius: 4px;
-    background: var(--accent);
-    color: #f8f6f1;
-    font: inherit;
-    font-size: 1.05rem;
-    font-weight: 700;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-
-  .mobile-save-bar:disabled {
-    opacity: 0.7;
-    cursor: wait;
-  }
 }
 
 .cycle-select {
@@ -334,38 +285,10 @@ body {
 
 .day-cells {
   display: grid;
-  /* Day 1 on the right → higher days on the left */
+  /* Day 1 on the right → day 40 on the left */
   direction: rtl;
-  grid-template-columns: repeat(var(--visible-days), minmax(0, var(--day-col)));
+  grid-template-columns: repeat(40, minmax(0, var(--day-col)));
   box-sizing: border-box;
-}
-
-/* Share/save capture: days 1–32 + full label column (html2canvas-friendly LTR) */
-.chart-sheet.exporting-chart {
-  --visible-days: 32;
-  --day-col: 1.7rem;
-  --label-w: 9rem;
-  --axis-w: 2.6rem;
-  overflow: visible !important;
-  width: max-content !important;
-  max-width: none !important;
-}
-
-.chart-sheet.exporting-chart .chart-scroll {
-  overflow: visible !important;
-  /* LTR so capture starts at day-high side and includes labels on the right */
-  direction: ltr !important;
-  margin: 0 !important;
-}
-
-.chart-sheet.exporting-chart .chart-body {
-  min-width: calc(var(--days-width) + var(--axis-w) + var(--label-w) + 1rem);
-}
-
-.chart-sheet.exporting-chart .row-label,
-.chart-sheet.exporting-chart .sticky-label,
-.chart-sheet.exporting-chart .sticky-days {
-  position: static !important;
 }
 
 .day-cell {

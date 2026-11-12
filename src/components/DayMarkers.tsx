@@ -16,7 +16,6 @@ type Props = {
   usualMeasureTime?: string;
   onUpdateDay: (dayIndex: number, patch: Partial<DayEntry>) => void;
   section: 'top' | 'bottom';
-  dayCount?: number;
 };
 
 const MUCUS_OPTIONS: { value: MucusType | ''; label: string; short: string }[] = [
@@ -30,18 +29,16 @@ const MUCUS_OPTIONS: { value: MucusType | ''; label: string; short: string }[] =
 
 function DayCells({
   days,
-  dayCount = DAYS_COUNT,
   className,
   render,
 }: {
   days: DayEntry[];
-  dayCount?: number;
   className?: string;
   render: (day: DayEntry, i: number) => ReactNode;
 }) {
   return (
     <div className={`day-cells ${className ?? ''}`}>
-      {Array.from({ length: dayCount }, (_, i) => {
+      {Array.from({ length: DAYS_COUNT }, (_, i) => {
         const day = days[i] ?? {};
         const fertile = isFertileRelevant(day, i, days);
         return (
@@ -79,7 +76,6 @@ export function DayMarkers({
   usualMeasureTime,
   onUpdateDay,
   section,
-  dayCount = DAYS_COUNT,
 }: Props) {
   if (section === 'top') {
     return (
@@ -87,7 +83,6 @@ export function DayMarkers({
         <MarkerRow label="היום במחזור" sticky>
           <DayCells
             days={days}
-            dayCount={dayCount}
             render={(_, i) => <span className="day-num">{i + 1}</span>}
           />
         </MarkerRow>
@@ -95,7 +90,6 @@ export function DayMarkers({
         <MarkerRow label="תאריך (יום בחודש)">
           <DayCells
             days={days}
-            dayCount={dayCount}
             render={(day, i) => (
               <input
                 type="number"
@@ -124,7 +118,6 @@ export function DayMarkers({
         <MarkerRow label="היום בשבוע">
           <DayCells
             days={days}
-            dayCount={dayCount}
             render={(_, i) => (
               <span className="derived">
                 {weekdayForCycleDay(days, i, month, year) || '·'}
@@ -136,7 +129,6 @@ export function DayMarkers({
         <MarkerRow label="שעת המדידה">
           <DayCells
             days={days}
-            dayCount={dayCount}
             render={(day, i) => {
               const shown =
                 day.measureTime ||
@@ -160,7 +152,6 @@ export function DayMarkers({
         <MarkerRow label="ספירת ימי השלב הלוטאלי">
           <DayCells
             days={days}
-            dayCount={dayCount}
             render={(day, i) => (
               <input
                 type="text"
@@ -192,7 +183,6 @@ export function DayMarkers({
         <MarkerRow label="יום השיא וספירת ימים אחריו">
           <DayCells
             days={days}
-            dayCount={dayCount}
             render={(_, i) => (
               <span className="derived">{postPeakLabel(days, i) || '·'}</span>
             )}
@@ -207,7 +197,6 @@ export function DayMarkers({
       <MarkerRow label="אמצעי מניעה">
         <DayCells
           days={days}
-          dayCount={dayCount}
           render={(day, i) => (
             <input
               type="text"
@@ -225,7 +214,6 @@ export function DayMarkers({
       <MarkerRow label="יחסי מין (עיגול)">
         <DayCells
           days={days}
-          dayCount={dayCount}
           render={(day, i) => (
             <button
               type="button"
@@ -243,7 +231,6 @@ export function DayMarkers({
       <MarkerRow label="ריר צוואר הרחם">
         <DayCells
           days={days}
-          dayCount={dayCount}
           render={(day, i) => (
             <select
               className="cell-select"
@@ -268,7 +255,6 @@ export function DayMarkers({
       <MarkerRow label="יום השיא">
         <DayCells
           days={days}
-          dayCount={dayCount}
           render={(day, i) => (
             <button
               type="button"
@@ -287,7 +273,6 @@ export function DayMarkers({
       <MarkerRow label="תחושה בנרתיק">
         <DayCells
           days={days}
-          dayCount={dayCount}
           render={(day, i) => (
             <input
               type="text"
@@ -306,7 +291,6 @@ export function DayMarkers({
       <MarkerRow label="צוואר הרחם (ק/ב/ר…)">
         <DayCells
           days={days}
-          dayCount={dayCount}
           render={(day, i) => (
             <input
               type="text"
@@ -323,7 +307,6 @@ export function DayMarkers({
       <MarkerRow label="כאבי ביוץ">
         <DayCells
           days={days}
-          dayCount={dayCount}
           render={(day, i) => (
             <button
               type="button"

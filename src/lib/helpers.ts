@@ -216,21 +216,6 @@ export function cycleDisplayName(cycle: Cycle, index: number): string {
   return `מחזור ${n}${month}${year}`;
 }
 
-/** Safe filename stem from cycle month/year (e.g. "9-2026" or "ספטמבר-2026"). */
-export function cycleFileStem(meta: { month?: string; year?: string; cycleNumber?: number }): string {
-  const month = (meta.month ?? '').trim();
-  const year = (meta.year ?? '').trim();
-  const parts = [month, year].filter(Boolean);
-  let stem = parts.length > 0 ? parts.join('-') : '';
-  if (!stem && meta.cycleNumber != null) stem = `מחזור-${meta.cycleNumber}`;
-  if (!stem) stem = `fam-chart-${new Date().toISOString().slice(0, 10)}`;
-  return stem
-    .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '') || 'fam-chart';
-}
-
 export function ensureDays(days: DayEntry[]): DayEntry[] {
   const next = days.slice(0, DAYS_COUNT);
   while (next.length < DAYS_COUNT) next.push({});
