@@ -7,7 +7,7 @@ import {
   loadState,
   saveState,
 } from './lib/storage';
-import { cycleDisplayName } from './lib/helpers';
+import { cycleDisplayName, cycleFileStem } from './lib/helpers';
 import { ChartHeader } from './components/ChartHeader';
 import { BbtGrid } from './components/BbtGrid';
 import { DayMarkers } from './components/DayMarkers';
@@ -98,7 +98,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `fam-chart-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `${cycleFileStem(active.meta)}-backup.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -162,13 +162,14 @@ export default function App() {
       );
       if (!blob) throw new Error('capture failed');
 
-      const filename = `fam-chart-${new Date().toISOString().slice(0, 10)}.png`;
+      const stem = cycleFileStem(active.meta);
+      const filename = `${stem}.png`;
       const file = new File([blob], filename, { type: 'image/png' });
 
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({
           files: [file],
-          title: 'טבלת שמ״פ',
+          title: stem,
         });
         return;
       }
