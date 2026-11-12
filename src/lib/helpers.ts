@@ -216,6 +216,15 @@ export function cycleDisplayName(cycle: Cycle, index: number): string {
   return `מחזור ${n}${month}${year}`;
 }
 
+/** Browser print/PDF suggested filename, e.g. "טבלת שמ״פ ספטמבר". */
+export function cyclePrintTitle(meta: { month?: string; year?: string }): string {
+  const month = (meta.month ?? '').trim();
+  if (month) return `טבלת שמ״פ ${month}`;
+  const year = (meta.year ?? '').trim();
+  if (year) return `טבלת שמ״פ ${year}`;
+  return 'טבלת שמ״פ';
+}
+
 export function ensureDays(days: DayEntry[]): DayEntry[] {
   const next = days.slice(0, DAYS_COUNT);
   while (next.length < DAYS_COUNT) next.push({});

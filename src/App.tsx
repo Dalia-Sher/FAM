@@ -7,12 +7,14 @@ import {
   loadState,
   saveState,
 } from './lib/storage';
-import { cycleDisplayName } from './lib/helpers';
+import { cycleDisplayName, cyclePrintTitle } from './lib/helpers';
 import { ChartHeader } from './components/ChartHeader';
 import { BbtGrid } from './components/BbtGrid';
 import { DayMarkers } from './components/DayMarkers';
 import { ChartNotes } from './components/ChartNotes';
 import './styles/chart.css';
+
+const DEFAULT_DOC_TITLE = 'מניעת הריון · טבלת שמ״פ';
 
 export default function App() {
   const [state, setState] = useState<AppState>(() => loadState());
@@ -102,6 +104,32 @@ export default function App() {
     }
   };
 
+  const handlePrint = () => {
+    const root = document.documentElement;
+    const prevTitle = document.title;
+    document.title = cyclePrintTitle(active.meta);
+    root.classList.add('is-printing');
+
+    const cleanup = () => {
+      root.classList.remove('is-printing');
+      document.title = prevTitle || DEFAULT_DOC_TITLE;
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
+    // iOS Safari often does not fire afterprint
+    window.setTimeout(cleanup, 4000);
+
+    // Must stay synchronous inside the tap handler — iOS ignores deferred print().
+    try {
+      window.print();
+    } catch {
+      cleanup();
+      alert(
+        'לא ניתן לפתוח הדפסה בדפדפן זה.\nבאייפון: כפתור השיתוף (□↑) ← הדפסה ← שמירת PDF.',
+      );
+    }
+  };
+
   return (
     <div className="app">
       <div className="toolbar no-print">
@@ -131,7 +159,7 @@ export default function App() {
           <button type="button" className="danger" onClick={deleteCycle}>
             מחק מחזור
           </button>
-          <button type="button" onClick={() => window.print()}>
+          <button type="button" onClick={handlePrint}>
             הדפסה / PDF
           </button>
           <button type="button" onClick={doExport}>
@@ -154,9 +182,18 @@ export default function App() {
         </div>
       </div>
 
+      <button
+        type="button"
+        className="mobile-save-bar no-print"
+        onClick={handlePrint}
+      >
+        שמירת PDF
+      </button>
+
       <p className="disclaimer no-print">
         כלי תיעוד בלבד — אינו ייעוץ רפואי ואינו מחליף למידה עם מדריכה מוסמכת. סימון
         חלון הפוריות הוא ויזואלי לפי מה שסימנת בטבלה.
+        באייפון: הדפסה / PDF ← שמירת PDF.
       </p>
 
       <main className="chart-sheet">

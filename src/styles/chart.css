@@ -142,6 +142,30 @@ body {
   min-width: 10rem;
 }
 
+.mobile-save-bar {
+  display: none;
+}
+
+@media (max-width: 700px), (pointer: coarse) {
+  .mobile-save-bar {
+    display: block;
+    width: 100%;
+    margin: 0 0 0.75rem;
+    padding: 0.9rem 1rem;
+    min-height: 3.25rem;
+    border: none;
+    border-radius: 4px;
+    background: var(--accent);
+    color: #f8f6f1;
+    font: inherit;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
+
 .disclaimer {
   margin: 0 0 1rem;
   font-size: 0.82rem;
@@ -576,17 +600,28 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   }
 }
 
+/* Match Safari “Save as PDF” used for the reference chart (A4 portrait). */
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
   :root {
     background: white;
     --paper: white;
     --day-col: 1.55rem;
     --label-w: 9rem;
+    --axis-w: 2.75rem;
+    --days-width: calc(40 * var(--day-col));
     --bbt-row: 0.85rem;
   }
 
+  html,
   body {
-    background: white;
+    background: white !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 
   .no-print {
@@ -596,29 +631,62 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   .app {
     max-width: none;
     padding: 0;
+    margin: 0;
   }
 
   .chart-sheet {
     box-shadow: none;
     border: none;
     padding: 0;
+    background: white;
   }
 
   .chart-scroll {
-    overflow: visible;
+    overflow: visible !important;
+    margin: 0 !important;
+  }
+
+  .chart-body {
+    min-width: 0 !important;
+  }
+
+  .disclaimer {
+    display: none !important;
   }
 
   .toolbar-actions button,
   .cell-input,
   .cell-select,
   .toggle-dot,
-  .bbt-grid {
-    -webkit-print-color-adjust: exact;
+  .bbt-grid,
+  .bbt-line,
+  .day-cell.is-fertile,
+  .bbt-fertile-col {
     print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 
   .day-cell.is-fertile,
   .bbt-fertile-col {
     background: #e8f0ed !important;
   }
+
+  .bbt-clear,
+  .bbt-clear-placeholder {
+    display: none !important;
+  }
+
+  .bbt-value-cell {
+    min-height: 1.2rem;
+  }
+
+  .row-label,
+  .sticky-label,
+  .sticky-days {
+    position: static !important;
+  }
+}
+
+html.is-printing .chart-scroll {
+  overflow: visible !important;
 }
