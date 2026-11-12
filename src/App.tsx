@@ -14,9 +14,20 @@ import { DayMarkers } from './components/DayMarkers';
 import { ChartNotes } from './components/ChartNotes';
 import './styles/chart.css';
 
+function isMobileLike() {
+  if (typeof navigator === 'undefined') return false;
+  return (
+    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
+    window.matchMedia('(pointer: coarse)').matches
+  );
+}
+
 export default function App() {
   const [state, setState] = useState<AppState>(() => loadState());
+  const [exporting, setExporting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const chartSheetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     saveState(state);
@@ -102,7 +113,7 @@ export default function App() {
     }
   };
 
-  const handlePrint = () => {
+  const handleDesktopPrint = () => {
     const root = document.documentElement;
     root.classList.add('is-printing');
 
@@ -111,18 +122,86 @@ export default function App() {
       window.removeEventListener('afterprint', cleanup);
     };
     window.addEventListener('afterprint', cleanup);
-    // iOS Safari often does not fire afterprint
     window.setTimeout(cleanup, 4000);
 
-    // Must stay synchronous inside the tap handler — iOS ignores deferred print().
     try {
       window.print();
     } catch {
       cleanup();
-      alert(
-        'לא ניתן לפתוח הדפסה בדפדפן זה.\nבאייפון: לחצי על כפתור השיתוף (□↑) ← הדפסה ← שמירת PDF.',
-      );
+      alert('לא ניתן לפתוח הדפסה בדפדפן זה.');
     }
+  };
+
+  const handleMobileSave = async () => {
+    const sheet = chartSheetRef.current;
+    if (!sheet || exporting) return;
+
+    setExporting(true);
+    const scroll = sheet.querySelector('.chart-scroll') as HTMLElement | null;
+    const prevOverflow = scroll?.style.overflow ?? '';
+    const prevDirection = scroll?.style.direction ?? '';
+
+    try {
+      if (scroll) {
+        scroll.style.overflow = 'visible';
+        scroll.style.direction = 'ltr';
+      }
+
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(sheet, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#f7f2e8',
+        width: Math.max(sheet.scrollWidth, sheet.clientWidth),
+        windowWidth: Math.max(sheet.scrollWidth, sheet.clientWidth),
+      });
+
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, 'image/png'),
+      );
+      if (!blob) throw new Error('capture failed');
+
+      const filename = `fam-chart-${new Date().toISOString().slice(0, 10)}.png`;
+      const file = new File([blob], filename, { type: 'image/png' });
+
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'טבלת שמ״פ',
+        });
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      alert('התמונה מוכנה. אפשר לשמור אותה ואז להדפיס / לשמור כ־PDF.');
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return;
+      alert(
+        'השמירה נכשלה.\nבאייפון אפשר גם: כפתור השיתוף של ספארי (□↑) ← הדפסה ← שמירת PDF.',
+      );
+    } finally {
+      if (scroll) {
+        scroll.style.overflow = prevOverflow;
+        scroll.style.direction = prevDirection;
+      }
+      setExporting(false);
+    }
+  };
+
+  const handlePrintOrSave = () => {
+    if (isMobileLike()) {
+      void handleMobileSave();
+      return;
+    }
+    handleDesktopPrint();
   };
 
   return (
@@ -154,8 +233,13 @@ export default function App() {
           <button type="button" className="danger" onClick={deleteCycle}>
             מחק מחזור
           </button>
-          <button type="button" onClick={handlePrint}>
-            הדפסה / PDF
+          <button
+            type="button"
+            className="btn-print"
+            disabled={exporting}
+            onClick={handlePrintOrSave}
+          >
+            {exporting ? 'מכין…' : isMobileLike() ? 'שמירה / שיתוף' : 'הדפסה / PDF'}
           </button>
           <button type="button" onClick={doExport}>
             ייצוא גיבוי
@@ -177,37 +261,48 @@ export default function App() {
         </div>
       </div>
 
+      <button
+        type="button"
+        className="mobile-save-bar no-print"
+        disabled={exporting}
+        onClick={handlePrintOrSave}
+      >
+        {exporting ? 'מכין תמונה…' : 'שמירה / שיתוף של הטבלה'}
+      </button>
+
       <p className="disclaimer no-print">
         כלי תיעוד בלבד — אינו ייעוץ רפואי ואינו מחליף למידה עם מדריכה מוסמכת. סימון
         חלון הפוריות הוא ויזואלי לפי מה שסימנת בטבלה.
       </p>
 
-      <main className="chart-sheet">
-        <ChartHeader meta={active.meta} onChange={setMeta} />
+      <main>
+        <div className="chart-sheet" ref={chartSheetRef}>
+          <ChartHeader meta={active.meta} onChange={setMeta} />
 
-        <div className="chart-scroll">
-          <div className="chart-body">
-            <DayMarkers
-              section="top"
-              days={active.days}
-              month={active.meta.month}
-              year={active.meta.year}
-              usualMeasureTime={active.meta.usualMeasureTime}
-              onUpdateDay={updateDay}
-            />
-            <BbtGrid days={active.days} onSetBbt={setBbt} />
-            <DayMarkers
-              section="bottom"
-              days={active.days}
-              month={active.meta.month}
-              year={active.meta.year}
-              usualMeasureTime={active.meta.usualMeasureTime}
-              onUpdateDay={updateDay}
-            />
+          <div className="chart-scroll">
+            <div className="chart-body">
+              <DayMarkers
+                section="top"
+                days={active.days}
+                month={active.meta.month}
+                year={active.meta.year}
+                usualMeasureTime={active.meta.usualMeasureTime}
+                onUpdateDay={updateDay}
+              />
+              <BbtGrid days={active.days} onSetBbt={setBbt} />
+              <DayMarkers
+                section="bottom"
+                days={active.days}
+                month={active.meta.month}
+                year={active.meta.year}
+                usualMeasureTime={active.meta.usualMeasureTime}
+                onUpdateDay={updateDay}
+              />
+            </div>
           </div>
-        </div>
 
-        <ChartNotes meta={active.meta} onChange={setMeta} />
+          <ChartNotes meta={active.meta} onChange={setMeta} />
+        </div>
       </main>
     </div>
   );
