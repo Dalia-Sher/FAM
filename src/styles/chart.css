@@ -613,11 +613,16 @@ html.is-printing .chart-scroll,
 
 html.is-printing,
 .chart-sheet.printing-chart {
-  --day-col: 4.2mm;
-  --label-w: 28mm;
-  --axis-w: 10mm;
+  --day-col: 5mm;
+  --label-w: 18mm;
+  --axis-w: 9mm;
   --days-width: calc(32 * var(--day-col));
   --bbt-row: 3.2mm;
+}
+
+html.is-printing .bbt-hint,
+.chart-sheet.printing-chart .bbt-hint {
+  display: none !important;
 }
 
 html.is-printing .marker-row,
@@ -695,11 +700,15 @@ html.is-printing .chart-body,
   :root {
     background: white;
     --paper: white;
-    --day-col: 4.2mm;
-    --label-w: 28mm;
-    --axis-w: 10mm;
+    --day-col: 5mm;
+    --label-w: 18mm;
+    --axis-w: 9mm;
     --days-width: calc(32 * var(--day-col));
     --bbt-row: 3.2mm;
+  }
+
+  .bbt-hint {
+    display: none !important;
   }
 
   html,
