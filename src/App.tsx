@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import type { AppState, Cycle, CycleMeta, DayEntry } from './types';
-import { createEmptyCycle } from './types';
+import { createEmptyCycle, DAYS_COUNT, EXPORT_DAYS_COUNT } from './types';
 import {
   exportStateJson,
   importStateJson,
@@ -136,25 +137,28 @@ export default function App() {
     const sheet = chartSheetRef.current;
     if (!sheet || exporting) return;
 
-    setExporting(true);
-    const scroll = sheet.querySelector('.chart-scroll') as HTMLElement | null;
-    const prevOverflow = scroll?.style.overflow ?? '';
-    const prevDirection = scroll?.style.direction ?? '';
+    flushSync(() => setExporting(true));
+    // Let the browser apply --visible-days:32 and unstick labels before capture.
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    });
 
     try {
-      if (scroll) {
-        scroll.style.overflow = 'visible';
-        scroll.style.direction = 'ltr';
-      }
-
       const html2canvas = (await import('html2canvas')).default;
+      const captureW = Math.ceil(
+        Math.max(sheet.scrollWidth, sheet.offsetWidth, sheet.clientWidth),
+      );
       const canvas = await html2canvas(sheet, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#f7f2e8',
-        width: Math.max(sheet.scrollWidth, sheet.clientWidth),
-        windowWidth: Math.max(sheet.scrollWidth, sheet.clientWidth),
+        width: captureW,
+        windowWidth: captureW,
+        scrollX: 0,
+        scrollY: 0,
+        x: 0,
+        y: 0,
       });
 
       const blob = await new Promise<Blob | null>((resolve) =>
@@ -189,10 +193,6 @@ export default function App() {
         'השמירה נכשלה.\nבאייפון אפשר גם: כפתור השיתוף של ספארי (□↑) ← הדפסה ← שמירת PDF.',
       );
     } finally {
-      if (scroll) {
-        scroll.style.overflow = prevOverflow;
-        scroll.style.direction = prevDirection;
-      }
       setExporting(false);
     }
   };
@@ -277,7 +277,10 @@ export default function App() {
       </p>
 
       <main>
-        <div className="chart-sheet" ref={chartSheetRef}>
+        <div
+          className={`chart-sheet${exporting ? ' exporting-chart' : ''}`}
+          ref={chartSheetRef}
+        >
           <ChartHeader meta={active.meta} onChange={setMeta} />
 
           <div className="chart-scroll">
@@ -289,8 +292,13 @@ export default function App() {
                 year={active.meta.year}
                 usualMeasureTime={active.meta.usualMeasureTime}
                 onUpdateDay={updateDay}
+                dayCount={exporting ? EXPORT_DAYS_COUNT : DAYS_COUNT}
               />
-              <BbtGrid days={active.days} onSetBbt={setBbt} />
+              <BbtGrid
+                days={active.days}
+                onSetBbt={setBbt}
+                dayCount={exporting ? EXPORT_DAYS_COUNT : DAYS_COUNT}
+              />
               <DayMarkers
                 section="bottom"
                 days={active.days}
@@ -298,6 +306,7 @@ export default function App() {
                 year={active.meta.year}
                 usualMeasureTime={active.meta.usualMeasureTime}
                 onUpdateDay={updateDay}
+                dayCount={exporting ? EXPORT_DAYS_COUNT : DAYS_COUNT}
               />
             </div>
           </div>

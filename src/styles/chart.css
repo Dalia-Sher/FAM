@@ -10,7 +10,8 @@
   --day-col: 2.15rem;
   --label-w: 11.5rem;
   --axis-w: 3rem;
-  --days-width: calc(40 * var(--day-col));
+  --visible-days: 40;
+  --days-width: calc(var(--visible-days) * var(--day-col));
   --bbt-row: 1.25rem;
   --font: 'Heebo', 'Segoe UI', Tahoma, sans-serif;
   --display: 'Frank Ruhl Libre', 'Times New Roman', serif;
@@ -333,10 +334,31 @@ body {
 
 .day-cells {
   display: grid;
-  /* Day 1 on the right → day 40 on the left */
+  /* Day 1 on the right → higher days on the left */
   direction: rtl;
-  grid-template-columns: repeat(40, minmax(0, var(--day-col)));
+  grid-template-columns: repeat(var(--visible-days), minmax(0, var(--day-col)));
   box-sizing: border-box;
+}
+
+/* Share/save capture: days 1–32 only so row labels on the right fit fully */
+.chart-sheet.exporting-chart {
+  --visible-days: 32;
+  overflow: visible;
+  width: max-content;
+  max-width: none;
+}
+
+.chart-sheet.exporting-chart .chart-scroll {
+  overflow: visible !important;
+  /* Keep RTL so day 1 stays next to labels (right side) */
+  direction: rtl !important;
+  margin: 0;
+}
+
+.chart-sheet.exporting-chart .row-label,
+.chart-sheet.exporting-chart .sticky-label,
+.chart-sheet.exporting-chart .sticky-days {
+  position: static !important;
 }
 
 .day-cell {
