@@ -600,21 +600,106 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   }
 }
 
-/* Match Safari “Save as PDF” used for the reference chart (A4 portrait). */
+/*
+ * Print/PDF: labels + days 1–32 on the LEFT of the page (Safari prints from the
+ * left; the on-screen RTL chart otherwise clips titles and early days).
+ */
+html.is-printing .chart-scroll,
+.chart-sheet.printing-chart .chart-scroll {
+  overflow: visible !important;
+  direction: ltr !important;
+  margin: 0 !important;
+}
+
+html.is-printing,
+.chart-sheet.printing-chart {
+  --day-col: 4.2mm;
+  --label-w: 28mm;
+  --axis-w: 10mm;
+  --days-width: calc(32 * var(--day-col));
+  --bbt-row: 3.2mm;
+}
+
+html.is-printing .marker-row,
+html.is-printing .bbt-block,
+html.is-printing .bbt-values-row,
+.chart-sheet.printing-chart .marker-row,
+.chart-sheet.printing-chart .bbt-block,
+.chart-sheet.printing-chart .bbt-values-row {
+  grid-template-columns: var(--label-w) var(--axis-w) var(--days-width);
+}
+
+html.is-printing .marker-row > .row-label,
+html.is-printing .bbt-block > .row-label,
+html.is-printing .bbt-values-row > .row-label,
+.chart-sheet.printing-chart .marker-row > .row-label,
+.chart-sheet.printing-chart .bbt-block > .row-label,
+.chart-sheet.printing-chart .bbt-values-row > .row-label {
+  grid-column: 1;
+  grid-row: 1;
+  position: static !important;
+}
+
+html.is-printing .marker-row > .axis-gutter,
+html.is-printing .bbt-block > .bbt-y-axis,
+html.is-printing .bbt-values-row > .axis-gutter,
+.chart-sheet.printing-chart .marker-row > .axis-gutter,
+.chart-sheet.printing-chart .bbt-block > .bbt-y-axis,
+.chart-sheet.printing-chart .bbt-values-row > .axis-gutter {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+html.is-printing .marker-row > .day-cells,
+html.is-printing .bbt-block > .bbt-grid-wrap,
+html.is-printing .bbt-values-row > .day-cells,
+.chart-sheet.printing-chart .marker-row > .day-cells,
+.chart-sheet.printing-chart .bbt-block > .bbt-grid-wrap,
+.chart-sheet.printing-chart .bbt-values-row > .day-cells {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+html.is-printing .day-cells,
+.chart-sheet.printing-chart .day-cells {
+  direction: ltr;
+  grid-template-columns: repeat(32, minmax(0, var(--day-col)));
+}
+
+html.is-printing .bbt-grid,
+.chart-sheet.printing-chart .bbt-grid {
+  transform: none;
+}
+
+html.is-printing .row-label,
+html.is-printing .sticky-label,
+html.is-printing .sticky-days,
+.chart-sheet.printing-chart .row-label,
+.chart-sheet.printing-chart .sticky-label,
+.chart-sheet.printing-chart .sticky-days {
+  position: static !important;
+}
+
+html.is-printing .chart-body,
+.chart-sheet.printing-chart .chart-body {
+  min-width: 0 !important;
+  width: max-content;
+}
+
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm;
+    margin: 6mm;
   }
 
   :root {
     background: white;
     --paper: white;
-    --day-col: 1.55rem;
-    --label-w: 9rem;
-    --axis-w: 2.75rem;
-    --days-width: calc(40 * var(--day-col));
-    --bbt-row: 0.85rem;
+    --day-col: 4.2mm;
+    --label-w: 28mm;
+    --axis-w: 10mm;
+    --days-width: calc(32 * var(--day-col));
+    --bbt-row: 3.2mm;
   }
 
   html,
@@ -644,10 +729,48 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   .chart-scroll {
     overflow: visible !important;
     margin: 0 !important;
+    direction: ltr !important;
   }
 
   .chart-body {
     min-width: 0 !important;
+    width: max-content;
+  }
+
+  .marker-row,
+  .bbt-block,
+  .bbt-values-row {
+    grid-template-columns: var(--label-w) var(--axis-w) var(--days-width);
+  }
+
+  .marker-row > .row-label,
+  .bbt-block > .row-label,
+  .bbt-values-row > .row-label {
+    grid-column: 1 !important;
+    grid-row: 1;
+  }
+
+  .marker-row > .axis-gutter,
+  .bbt-block > .bbt-y-axis,
+  .bbt-values-row > .axis-gutter {
+    grid-column: 2 !important;
+    grid-row: 1;
+  }
+
+  .marker-row > .day-cells,
+  .bbt-block > .bbt-grid-wrap,
+  .bbt-values-row > .day-cells {
+    grid-column: 3 !important;
+    grid-row: 1;
+  }
+
+  .day-cells {
+    direction: ltr;
+    grid-template-columns: repeat(32, minmax(0, var(--day-col)));
+  }
+
+  .bbt-grid {
+    transform: none !important;
   }
 
   .disclaimer {
@@ -685,8 +808,4 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   .sticky-days {
     position: static !important;
   }
-}
-
-html.is-printing .chart-scroll {
-  overflow: visible !important;
 }

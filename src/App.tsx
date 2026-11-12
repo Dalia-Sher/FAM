@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import type { AppState, Cycle, CycleMeta, DayEntry } from './types';
-import { createEmptyCycle } from './types';
+import { createEmptyCycle, DAYS_COUNT, PRINT_DAYS_COUNT } from './types';
 import {
   exportStateJson,
   importStateJson,
@@ -18,6 +19,7 @@ const DEFAULT_DOC_TITLE = 'מניעת הריון · טבלת שמ״פ';
 
 export default function App() {
   const [state, setState] = useState<AppState>(() => loadState());
+  const [printing, setPrinting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -108,11 +110,15 @@ export default function App() {
     const root = document.documentElement;
     const prevTitle = document.title;
     document.title = cyclePrintTitle(active.meta);
+
+    // Shrink to days 1–32 + print layout before Safari snapshots the page.
+    flushSync(() => setPrinting(true));
     root.classList.add('is-printing');
 
     const cleanup = () => {
       root.classList.remove('is-printing');
       document.title = prevTitle || DEFAULT_DOC_TITLE;
+      setPrinting(false);
       window.removeEventListener('afterprint', cleanup);
     };
     window.addEventListener('afterprint', cleanup);
@@ -129,6 +135,8 @@ export default function App() {
       );
     }
   };
+
+  const printDayCount = printing ? PRINT_DAYS_COUNT : DAYS_COUNT;
 
   return (
     <div className="app">
@@ -196,7 +204,7 @@ export default function App() {
         באייפון: הדפסה / PDF ← שמירת PDF.
       </p>
 
-      <main className="chart-sheet">
+      <main className={`chart-sheet${printing ? ' printing-chart' : ''}`}>
         <ChartHeader meta={active.meta} onChange={setMeta} />
 
         <div className="chart-scroll">
@@ -208,8 +216,13 @@ export default function App() {
               year={active.meta.year}
               usualMeasureTime={active.meta.usualMeasureTime}
               onUpdateDay={updateDay}
+              dayCount={printDayCount}
             />
-            <BbtGrid days={active.days} onSetBbt={setBbt} />
+            <BbtGrid
+              days={active.days}
+              onSetBbt={setBbt}
+              dayCount={printDayCount}
+            />
             <DayMarkers
               section="bottom"
               days={active.days}
@@ -217,6 +230,7 @@ export default function App() {
               year={active.meta.year}
               usualMeasureTime={active.meta.usualMeasureTime}
               onUpdateDay={updateDay}
+              dayCount={printDayCount}
             />
           </div>
         </div>

@@ -49,6 +49,8 @@ export type AppState = {
 };
 
 export const DAYS_COUNT = 40;
+/** Days included in print/PDF so labels + day 1 fit on one A4 page. */
+export const PRINT_DAYS_COUNT = 32;
 export const BBT_MAX = 37.1;
 export const BBT_MIN = 36.05;
 export const BBT_STEP = 0.05;

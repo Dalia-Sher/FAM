@@ -6,6 +6,7 @@ import { isFertileRelevant } from '../lib/helpers';
 type Props = {
   days: DayEntry[];
   onSetBbt: (dayIndex: number, bbt: number | undefined) => void;
+  dayCount?: number;
 };
 
 function snapBbt(n: number): number | undefined {
@@ -77,17 +78,18 @@ function TempInput({
   );
 }
 
-export function BbtGrid({ days, onSetBbt }: Props) {
+export function BbtGrid({ days, onSetBbt, dayCount = DAYS_COUNT }: Props) {
   const levels = useMemo(() => bbtLevels(), []);
 
   const points = useMemo(() => {
     return days
+      .slice(0, dayCount)
       .map((d, i) => {
         if (d.bbt == null) return null;
         return { col: i, row: nearestRow(levels, d.bbt), temp: d.bbt };
       })
       .filter(Boolean) as { col: number; row: number; temp: number }[];
-  }, [days, levels]);
+  }, [days, levels, dayCount]);
 
   const linePath = useMemo(() => {
     if (points.length < 2) return '';
@@ -124,7 +126,7 @@ export function BbtGrid({ days, onSetBbt }: Props) {
             }}
           >
             <div className="bbt-fertile-cols" aria-hidden>
-              {days.map((day, col) =>
+              {days.slice(0, dayCount).map((day, col) =>
                 isFertileRelevant(day, col, days) ? (
                   <div
                     key={col}
@@ -140,7 +142,7 @@ export function BbtGrid({ days, onSetBbt }: Props) {
 
             <svg
               className="bbt-line"
-              viewBox={`0 0 ${DAYS_COUNT} ${levels.length}`}
+              viewBox={`0 0 ${dayCount} ${levels.length}`}
               preserveAspectRatio="none"
               aria-hidden
             >
@@ -177,7 +179,7 @@ export function BbtGrid({ days, onSetBbt }: Props) {
         </div>
         <div className="axis-gutter" aria-hidden />
         <div className="day-cells">
-          {Array.from({ length: DAYS_COUNT }, (_, i) => {
+          {Array.from({ length: dayCount }, (_, i) => {
             const bbt = days[i]?.bbt;
             return (
               <div
