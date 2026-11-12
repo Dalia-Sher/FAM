@@ -138,23 +138,71 @@ export default function App() {
     if (!sheet || exporting) return;
 
     flushSync(() => setExporting(true));
-    // Let the browser apply --visible-days:32 and unstick labels before capture.
     await new Promise<void>((resolve) => {
       requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
     });
+    // iOS needs a beat after layout before clone/capture is reliable.
+    await new Promise((r) => setTimeout(r, 80));
+
+    const host = document.createElement('div');
+    host.setAttribute('aria-hidden', 'true');
+    host.style.cssText =
+      'position:fixed;left:-10000px;top:0;z-index:-1;pointer-events:none;background:#f7f2e8;';
 
     try {
+      const clone = sheet.cloneNode(true) as HTMLElement;
+      clone.classList.add('exporting-chart');
+      clone.style.width = 'max-content';
+      clone.style.maxWidth = 'none';
+      clone.style.overflow = 'visible';
+      clone.style.setProperty('--visible-days', String(EXPORT_DAYS_COUNT));
+
+      // Hard-limit day columns in the clone (html2canvas ignores some CSS vars).
+      clone.querySelectorAll('.day-cells').forEach((row) => {
+        [...row.children].forEach((cell, i) => {
+          if (i >= EXPORT_DAYS_COUNT) cell.remove();
+        });
+      });
+      clone.querySelectorAll('.bbt-fertile-col').forEach((col) => {
+        const left = (col as HTMLElement).style.left;
+        const m = left.match(/calc\(\s*(\d+)/);
+        if (m && Number(m[1]) >= EXPORT_DAYS_COUNT) col.remove();
+      });
+      clone.querySelectorAll('.bbt-line').forEach((svg) => {
+        const parts = (svg.getAttribute('viewBox') ?? '0 0 32 20').split(/\s+/);
+        const h = parts[3] ?? '20';
+        svg.setAttribute('viewBox', `0 0 ${EXPORT_DAYS_COUNT} ${h}`);
+      });
+
+      const scroll = clone.querySelector('.chart-scroll') as HTMLElement | null;
+      if (scroll) {
+        // LTR scroll coords so html2canvas does not clip the label column.
+        scroll.style.overflow = 'visible';
+        scroll.style.direction = 'ltr';
+        scroll.style.margin = '0';
+      }
+      clone
+        .querySelectorAll('.row-label, .sticky-label, .sticky-days')
+        .forEach((el) => {
+          (el as HTMLElement).style.position = 'static';
+        });
+
+      host.appendChild(clone);
+      document.body.appendChild(host);
+
+      const w = Math.ceil(Math.max(clone.scrollWidth, clone.offsetWidth));
+      const h = Math.ceil(Math.max(clone.scrollHeight, clone.offsetHeight));
+
       const html2canvas = (await import('html2canvas')).default;
-      const captureW = Math.ceil(
-        Math.max(sheet.scrollWidth, sheet.offsetWidth, sheet.clientWidth),
-      );
-      const canvas = await html2canvas(sheet, {
+      const canvas = await html2canvas(clone, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#f7f2e8',
-        width: captureW,
-        windowWidth: captureW,
+        width: w,
+        height: h,
+        windowWidth: w,
+        windowHeight: h,
         scrollX: 0,
         scrollY: 0,
         x: 0,
@@ -193,6 +241,7 @@ export default function App() {
         'השמירה נכשלה.\nבאייפון אפשר גם: כפתור השיתוף של ספארי (□↑) ← הדפסה ← שמירת PDF.',
       );
     } finally {
+      host.remove();
       setExporting(false);
     }
   };

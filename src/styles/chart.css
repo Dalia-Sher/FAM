@@ -340,19 +340,26 @@ body {
   box-sizing: border-box;
 }
 
-/* Share/save capture: days 1–32 only so row labels on the right fit fully */
+/* Share/save capture: days 1–32 + full label column (html2canvas-friendly LTR) */
 .chart-sheet.exporting-chart {
   --visible-days: 32;
-  overflow: visible;
-  width: max-content;
-  max-width: none;
+  --day-col: 1.7rem;
+  --label-w: 9rem;
+  --axis-w: 2.6rem;
+  overflow: visible !important;
+  width: max-content !important;
+  max-width: none !important;
 }
 
 .chart-sheet.exporting-chart .chart-scroll {
   overflow: visible !important;
-  /* Keep RTL so day 1 stays next to labels (right side) */
-  direction: rtl !important;
-  margin: 0;
+  /* LTR so capture starts at day-high side and includes labels on the right */
+  direction: ltr !important;
+  margin: 0 !important;
+}
+
+.chart-sheet.exporting-chart .chart-body {
+  min-width: calc(var(--days-width) + var(--axis-w) + var(--label-w) + 1rem);
 }
 
 .chart-sheet.exporting-chart .row-label,
