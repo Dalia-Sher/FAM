@@ -102,6 +102,29 @@ export default function App() {
     }
   };
 
+  const handlePrint = () => {
+    const root = document.documentElement;
+    root.classList.add('is-printing');
+
+    const cleanup = () => {
+      root.classList.remove('is-printing');
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
+    // iOS Safari often does not fire afterprint
+    window.setTimeout(cleanup, 4000);
+
+    // Must stay synchronous inside the tap handler — iOS ignores deferred print().
+    try {
+      window.print();
+    } catch {
+      cleanup();
+      alert(
+        'לא ניתן לפתוח הדפסה בדפדפן זה.\nבאייפון: לחצי על כפתור השיתוף (□↑) ← הדפסה ← שמירת PDF.',
+      );
+    }
+  };
+
   return (
     <div className="app">
       <div className="toolbar no-print">
@@ -131,7 +154,7 @@ export default function App() {
           <button type="button" className="danger" onClick={deleteCycle}>
             מחק מחזור
           </button>
-          <button type="button" onClick={() => window.print()}>
+          <button type="button" onClick={handlePrint}>
             הדפסה / PDF
           </button>
           <button type="button" onClick={doExport}>
