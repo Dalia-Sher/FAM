@@ -577,26 +577,16 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
 }
 
 @media print {
-  @page {
-    size: A4 landscape;
-    margin: 6mm;
-  }
-
   :root {
     background: white;
     --paper: white;
-    --day-col: 1.05rem;
-    --label-w: 7.5rem;
-    --axis-w: 2.4rem;
-    --days-width: calc(40 * var(--day-col));
-    --bbt-row: 0.72rem;
+    --day-col: 1.55rem;
+    --label-w: 9rem;
+    --bbt-row: 0.85rem;
   }
 
-  html,
   body {
-    background: white !important;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
+    background: white;
   }
 
   .no-print {
@@ -606,62 +596,29 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   .app {
     max-width: none;
     padding: 0;
-    margin: 0;
   }
 
   .chart-sheet {
     box-shadow: none;
     border: none;
     padding: 0;
-    background: white;
   }
 
   .chart-scroll {
-    overflow: visible !important;
-    margin: 0 !important;
-    direction: ltr !important;
-  }
-
-  .chart-body {
-    min-width: 0 !important;
-  }
-
-  .disclaimer {
-    display: none !important;
+    overflow: visible;
   }
 
   .toolbar-actions button,
   .cell-input,
   .cell-select,
   .toggle-dot,
-  .bbt-grid,
-  .bbt-line,
-  .day-cell.is-fertile,
-  .bbt-fertile-col {
-    print-color-adjust: exact;
+  .bbt-grid {
     -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   .day-cell.is-fertile,
   .bbt-fertile-col {
     background: #e8f0ed !important;
   }
-
-  /* Keep chart interactive elements from looking broken on paper */
-  .bbt-clear {
-    display: none !important;
-  }
-
-  .bbt-clear-placeholder {
-    display: none !important;
-  }
-
-  .bbt-value-cell {
-    min-height: 1.2rem;
-  }
-}
-
-/* Prep class toggled just before window.print() */
-html.is-printing .chart-scroll {
-  overflow: visible !important;
 }
