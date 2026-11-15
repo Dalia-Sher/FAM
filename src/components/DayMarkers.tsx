@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import type { DayEntry, MucusType } from '../types';
 import { DAYS_COUNT } from '../types';
 import {
@@ -29,6 +29,61 @@ const MUCUS_OPTIONS: { value: MucusType | ''; label: string; short: string }[] =
   { value: 'period', label: 'וסת', short: 'וסת' },
   { value: 'dry', label: 'יבש', short: 'יבש' },
 ];
+
+/** Text + numeric keypad; commit on blur so iOS autofill gets the full day number. */
+function DayOfMonthInput({
+  dayIndex,
+  date,
+  onUpdateDay,
+}: {
+  dayIndex: number;
+  date?: string;
+  onUpdateDay: (dayIndex: number, patch: Partial<DayEntry>) => void;
+}) {
+  const stored = dayOfMonthValue(date);
+  const [draft, setDraft] = useState(stored);
+
+  useEffect(() => {
+    setDraft(stored);
+  }, [stored]);
+
+  const commit = () => {
+    const v = draft.trim();
+    if (v === '') {
+      onUpdateDay(dayIndex, { date: undefined });
+      setDraft('');
+      return;
+    }
+    const n = Number(v);
+    if (!Number.isFinite(n) || n < 1 || n > 31) {
+      setDraft(stored);
+      return;
+    }
+    const next = String(n);
+    onUpdateDay(dayIndex, { date: next });
+    setDraft(next);
+  };
+
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      enterKeyHint="done"
+      className="cell-input"
+      placeholder="יום"
+      value={draft}
+      onChange={(e) =>
+        setDraft(e.target.value.replace(/[^\d]/g, '').slice(0, 2))
+      }
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+      }}
+      title="מספר היום בחודש (1–31). ביום הראשון — אחרי Enter/סיום, 30 הימים הבאים מתמלאים לפי חודש/שנה."
+    />
+  );
+}
 
 function DayCells({
   days,
@@ -99,28 +154,19 @@ export function DayMarkers({
           <DayCells
             days={days}
             dayCount={dayCount}
-            render={(day, i) => (
-              <input
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={31}
-                className="cell-input"
-                placeholder="יום"
-                value={dayOfMonthValue(day.date)}
-                onChange={(e) => {
-                  const v = e.target.value.trim();
-                  if (v === '') {
-                    onUpdateDay(i, { date: undefined });
-                    return;
-                  }
-                  const n = Number(v);
-                  if (!Number.isFinite(n) || n < 1 || n > 31) return;
-                  onUpdateDay(i, { date: String(n) });
-                }}
-                title="מספר היום בחודש (1–31). ביום הראשון — 30 הימים הבאים מתמלאים אוטומטית לפי חודש/שנה."
-              />
-            )}
+            render={(day, i) =>
+              plainValues ? (
+                <span className="cell-print-value">
+                  {dayOfMonthValue(day.date) || '·'}
+                </span>
+              ) : (
+                <DayOfMonthInput
+                  dayIndex={i}
+                  date={day.date}
+                  onUpdateDay={onUpdateDay}
+                />
+              )
+            }
           />
         </MarkerRow>
 
