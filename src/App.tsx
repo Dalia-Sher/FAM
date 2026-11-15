@@ -97,6 +97,7 @@ export default function App() {
   };
 
   const addCycle = () => {
+    // Keep only stable identity fields — notes/disturbances stay empty for the new cycle.
     const cycle = createEmptyCycle({
       age: active.meta.age,
       usualMeasureTime: active.meta.usualMeasureTime,
@@ -225,39 +226,39 @@ export default function App() {
       </p>
 
       <main className={`chart-sheet${printing ? ' printing-chart' : ''}`}>
-        <ChartHeader meta={active.meta} onChange={setMeta} />
+          <ChartHeader key={`${active.id}-header`} meta={active.meta} onChange={setMeta} />
 
-        <div className="chart-scroll">
-          <div className="chart-body">
-            <DayMarkers
-              section="top"
-              days={active.days}
-              month={active.meta.month}
-              year={active.meta.year}
-              usualMeasureTime={active.meta.usualMeasureTime}
-              onUpdateDay={updateDay}
-              dayCount={printDayCount}
-              plainValues={printing}
-            />
-            <BbtGrid
-              days={active.days}
-              onSetBbt={setBbt}
-              dayCount={printDayCount}
-            />
-            <DayMarkers
-              section="bottom"
-              days={active.days}
-              month={active.meta.month}
-              year={active.meta.year}
-              usualMeasureTime={active.meta.usualMeasureTime}
-              onUpdateDay={updateDay}
-              dayCount={printDayCount}
-              plainValues={printing}
-            />
+          <div className="chart-scroll">
+            <div className="chart-body">
+              <DayMarkers
+                section="top"
+                days={active.days}
+                month={active.meta.month}
+                year={active.meta.year}
+                usualMeasureTime={active.meta.usualMeasureTime}
+                onUpdateDay={updateDay}
+                dayCount={printDayCount}
+                plainValues={printing}
+              />
+              <BbtGrid
+                days={active.days}
+                onSetBbt={setBbt}
+                dayCount={printDayCount}
+              />
+              <DayMarkers
+                section="bottom"
+                days={active.days}
+                month={active.meta.month}
+                year={active.meta.year}
+                usualMeasureTime={active.meta.usualMeasureTime}
+                onUpdateDay={updateDay}
+                dayCount={printDayCount}
+                plainValues={printing}
+              />
+            </div>
           </div>
-        </div>
 
-        <ChartNotes meta={active.meta} onChange={setMeta} />
+          <ChartNotes key={`${active.id}-notes`} meta={active.meta} onChange={setMeta} />
       </main>
     </div>
   );

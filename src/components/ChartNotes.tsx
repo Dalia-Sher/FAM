@@ -18,6 +18,9 @@ export function ChartNotes({ meta, onChange }: Props) {
           פעילות גופנית
           <input
             type="text"
+            name="fam-exercise"
+            autoComplete="off"
+            autoCorrect="off"
             value={meta.exercise ?? ''}
             onChange={(e) => set('exercise', e.target.value)}
           />
@@ -26,6 +29,9 @@ export function ChartNotes({ meta, onChange }: Props) {
           נסיעות
           <input
             type="text"
+            name="fam-travel"
+            autoComplete="off"
+            autoCorrect="off"
             value={meta.travel ?? ''}
             onChange={(e) => set('travel', e.target.value)}
           />
@@ -34,6 +40,9 @@ export function ChartNotes({ meta, onChange }: Props) {
           מחלה / מתח
           <input
             type="text"
+            name="fam-illness"
+            autoComplete="off"
+            autoCorrect="off"
             value={meta.illnessStress ?? ''}
             onChange={(e) => set('illnessStress', e.target.value)}
           />
@@ -42,6 +51,9 @@ export function ChartNotes({ meta, onChange }: Props) {
           תסמונת קדם־וסתית
           <input
             type="text"
+            name="fam-pms"
+            autoComplete="off"
+            autoCorrect="off"
             value={meta.pms ?? ''}
             onChange={(e) => set('pms', e.target.value)}
           />
@@ -50,6 +62,9 @@ export function ChartNotes({ meta, onChange }: Props) {
           בדיקת שד עצמית
           <input
             type="text"
+            name="fam-breast"
+            autoComplete="off"
+            autoCorrect="off"
             value={meta.breastExam ?? ''}
             onChange={(e) => set('breastExam', e.target.value)}
           />
@@ -58,6 +73,9 @@ export function ChartNotes({ meta, onChange }: Props) {
           צמחי מרפא, ויטמינים
           <input
             type="text"
+            name="fam-herbs"
+            autoComplete="off"
+            autoCorrect="off"
             value={meta.herbsVitamins ?? ''}
             onChange={(e) => set('herbsVitamins', e.target.value)}
           />
@@ -66,6 +84,9 @@ export function ChartNotes({ meta, onChange }: Props) {
           תוספי תזונה
           <input
             type="text"
+            name="fam-supplements"
+            autoComplete="off"
+            autoCorrect="off"
             value={meta.supplements ?? ''}
             onChange={(e) => set('supplements', e.target.value)}
           />
@@ -74,6 +95,9 @@ export function ChartNotes({ meta, onChange }: Props) {
           הערות
           <textarea
             rows={3}
+            name="fam-notes"
+            autoComplete="off"
+            autoCorrect="off"
             value={meta.notes ?? ''}
             onChange={(e) => set('notes', e.target.value)}
           />

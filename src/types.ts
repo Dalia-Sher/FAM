@@ -79,11 +79,26 @@ export function newId(): string {
   return `id-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+/** Fields that may carry over when starting a new cycle. Notes/disturbances do not. */
+const NEW_CYCLE_CARRYOVER: (keyof CycleMeta)[] = [
+  'age',
+  'usualMeasureTime',
+  'cycleNumber',
+];
+
 export function createEmptyCycle(partial?: Partial<CycleMeta>): Cycle {
+  const meta: CycleMeta = {};
+  if (partial) {
+    for (const key of NEW_CYCLE_CARRYOVER) {
+      if (partial[key] !== undefined) {
+        (meta as Record<string, unknown>)[key] = partial[key];
+      }
+    }
+  }
   return {
     id: newId(),
     createdAt: new Date().toISOString(),
-    meta: { ...partial },
+    meta,
     days: Array.from({ length: DAYS_COUNT }, () => emptyDay()),
   };
 }
