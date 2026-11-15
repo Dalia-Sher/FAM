@@ -118,7 +118,7 @@ export function DayMarkers({
                   if (!Number.isFinite(n) || n < 1 || n > 31) return;
                   onUpdateDay(i, { date: String(n) });
                 }}
-                title="מספר היום בחודש (1–31). יום בשבוע מתמלא אוטומטית."
+                title="מספר היום בחודש (1–31). ביום הראשון — 30 הימים הבאים מתמלאים אוטומטית לפי חודש/שנה."
               />
             )}
           />

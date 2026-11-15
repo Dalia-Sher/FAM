@@ -8,7 +8,7 @@ import {
   loadState,
   saveState,
 } from './lib/storage';
-import { cycleDisplayName } from './lib/helpers';
+import { cycleDisplayName, dayOfMonthValue, followingDayOfMonthSeries } from './lib/helpers';
 import { ChartHeader } from './components/ChartHeader';
 import { BbtGrid } from './components/BbtGrid';
 import { DayMarkers } from './components/DayMarkers';
@@ -39,7 +39,24 @@ export default function App() {
   }, []);
 
   const setMeta = (meta: CycleMeta) => {
-    updateActive((c) => ({ ...c, meta }));
+    updateActive((c) => {
+      const start = Number(dayOfMonthValue(c.days[0]?.date));
+      if (
+        start >= 1 &&
+        start <= 31 &&
+        (meta.month !== c.meta.month || meta.year !== c.meta.year)
+      ) {
+        const following = followingDayOfMonthSeries(start, meta.month, meta.year, 30);
+        return {
+          ...c,
+          meta,
+          days: c.days.map((d, i) =>
+            i >= 1 && i <= 30 ? { ...d, date: following[i - 1] } : d,
+          ),
+        };
+      }
+      return { ...c, meta };
+    });
   };
 
   const updateDay = (dayIndex: number, patch: Partial<DayEntry>) => {
@@ -51,6 +68,26 @@ export default function App() {
         }
         return { ...d, ...patch };
       });
+
+      // First cycle day date → fill the next 30 calendar days from header month/year.
+      if (dayIndex === 0 && patch.date) {
+        const start = Number(dayOfMonthValue(String(patch.date)));
+        if (start >= 1 && start <= 31) {
+          const following = followingDayOfMonthSeries(
+            start,
+            c.meta.month,
+            c.meta.year,
+            30,
+          );
+          return {
+            ...c,
+            days: days.map((d, i) =>
+              i >= 1 && i <= 30 ? { ...d, date: following[i - 1] } : d,
+            ),
+          };
+        }
+      }
+
       return { ...c, days };
     });
   };

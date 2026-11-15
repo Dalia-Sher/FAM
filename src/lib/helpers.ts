@@ -121,6 +121,34 @@ export function resolveDayDate(
   return makeDate(curY, curM, curD);
 }
 
+/**
+ * Day-of-month strings for the next `count` calendar days after `startDom`
+ * in the given month/year (rolls into the following month when needed).
+ */
+export function followingDayOfMonthSeries(
+  startDom: number,
+  month?: string,
+  year?: string,
+  count = 30,
+): string[] {
+  const { year: y, month: m } = baseYearMonth(month, year);
+  let cursor = makeDate(y, m, startDom);
+  if (!cursor) {
+    // Invalid DOM for that month (e.g. 31 in April) — still advance from that wall date.
+    cursor = new Date(y, m - 1, startDom);
+  }
+  const out: string[] = [];
+  for (let i = 0; i < count; i++) {
+    cursor = new Date(
+      cursor.getFullYear(),
+      cursor.getMonth(),
+      cursor.getDate() + 1,
+    );
+    out.push(String(cursor.getDate()));
+  }
+  return out;
+}
+
 export function weekdayForCycleDay(
   days: DayEntry[],
   dayIndex: number,
