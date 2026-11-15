@@ -49,8 +49,6 @@ export type AppState = {
 };
 
 export const DAYS_COUNT = 40;
-/** Days included in print/PDF (full cycle width on landscape A4). */
-export const PRINT_DAYS_COUNT = 40;
 export const BBT_MAX = 37.1;
 export const BBT_MIN = 36.05;
 export const BBT_STEP = 0.05;
