@@ -29,9 +29,14 @@ function normalizeDay(day: DayEntry): DayEntry {
 }
 
 function normalizeCycle(raw: Cycle): Cycle {
+  const meta = { ...(raw.meta ?? {}) } as Cycle['meta'] & { breastExam?: string };
+  if (!meta.alcohol && meta.breastExam) {
+    meta.alcohol = meta.breastExam;
+  }
+  delete meta.breastExam;
   return {
     ...raw,
-    meta: raw.meta ?? {},
+    meta,
     days: ensureDays(raw.days ?? []).map(normalizeDay),
   };
 }

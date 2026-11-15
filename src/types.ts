@@ -37,7 +37,8 @@ export type CycleMeta = {
   travel?: string;
   illnessStress?: string;
   pms?: string;
-  breastExam?: string;
+  /** Alcohol intake notes (legacy key breastExam is migrated on load). */
+  alcohol?: string;
   herbsVitamins?: string;
   supplements?: string;
 };

@@ -59,14 +59,14 @@ export function ChartNotes({ meta, onChange }: Props) {
           />
         </label>
         <label>
-          בדיקת שד עצמית
+          שתיית אלכוהול
           <input
             type="text"
-            name="fam-breast"
+            name="fam-alcohol"
             autoComplete="off"
             autoCorrect="off"
-            value={meta.breastExam ?? ''}
-            onChange={(e) => set('breastExam', e.target.value)}
+            value={meta.alcohol ?? ''}
+            onChange={(e) => set('alcohol', e.target.value)}
           />
         </label>
         <label>
