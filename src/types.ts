@@ -1,4 +1,10 @@
-export type MucusType = 'eggwhite' | 'creamy' | 'sticky' | 'period' | 'dry';
+export type MucusType =
+  | 'eggwhite'
+  | 'creamy'
+  | 'sticky'
+  | 'period'
+  | 'spotting'
+  | 'dry';
 
 export type DayEntry = {
   /** Day of month (1–31), stored as string. Legacy ISO dates are still accepted. */

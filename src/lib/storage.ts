@@ -9,6 +9,7 @@ const VALID_MUCUS = new Set<MucusType>([
   'creamy',
   'sticky',
   'period',
+  'spotting',
   'dry',
 ]);
 

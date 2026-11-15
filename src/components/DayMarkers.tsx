@@ -27,6 +27,7 @@ const MUCUS_OPTIONS: { value: MucusType | ''; label: string; short: string }[] =
   { value: 'creamy', label: 'חלבי', short: 'חל' },
   { value: 'sticky', label: 'דביק', short: 'דב' },
   { value: 'period', label: 'וסת', short: 'וסת' },
+  { value: 'spotting', label: 'הכתמה', short: 'הכתמה' },
   { value: 'dry', label: 'יבש', short: 'יבש' },
 ];
 

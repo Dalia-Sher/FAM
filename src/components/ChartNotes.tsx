@@ -121,6 +121,9 @@ export function ChartNotes({ meta, onChange }: Props) {
             <strong>וסת:</strong> דימום וסתי.
           </li>
           <li>
+            <strong>הכתמה:</strong> דימום קל / כתמים שאינם וסת מלאה.
+          </li>
+          <li>
             <strong>יבש:</strong> ללא ריר מורגש / תחושת יובש.
           </li>
         </ul>

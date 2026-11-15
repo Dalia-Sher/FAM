@@ -279,6 +279,8 @@ export function mucusLabel(m?: MucusType): string {
       return 'דביק';
     case 'period':
       return 'וסת';
+    case 'spotting':
+      return 'הכתמה';
     case 'dry':
       return 'יבש';
     default:
