@@ -87,7 +87,7 @@ export function DayMarkers({
   if (section === 'top') {
     return (
       <div className="day-markers">
-        <MarkerRow label="היום במחזור" sticky>
+        <MarkerRow label="היום במחזור" sticky={!plainValues}>
           <DayCells
             days={days}
             dayCount={dayCount}
