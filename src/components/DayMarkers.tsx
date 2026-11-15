@@ -17,6 +17,8 @@ type Props = {
   onUpdateDay: (dayIndex: number, patch: Partial<DayEntry>) => void;
   section: 'top' | 'bottom';
   dayCount?: number;
+  /** When true (print/PDF), show plain values instead of form controls. */
+  plainValues?: boolean;
 };
 
 const MUCUS_OPTIONS: { value: MucusType | ''; label: string; short: string }[] = [
@@ -80,6 +82,7 @@ export function DayMarkers({
   onUpdateDay,
   section,
   dayCount = DAYS_COUNT,
+  plainValues = false,
 }: Props) {
   if (section === 'top') {
     return (
@@ -244,24 +247,31 @@ export function DayMarkers({
         <DayCells
           days={days}
           dayCount={dayCount}
-          render={(day, i) => (
-            <select
-              className="cell-select"
-              value={day.mucus ?? ''}
-              onChange={(e) =>
-                onUpdateDay(i, {
-                  mucus: (e.target.value || undefined) as MucusType | undefined,
-                })
-              }
-              title={MUCUS_OPTIONS.find((o) => o.value === (day.mucus ?? ''))?.label}
-            >
-              {MUCUS_OPTIONS.map((o) => (
-                <option key={o.value || 'none'} value={o.value}>
-                  {o.short || '—'}
-                </option>
-              ))}
-            </select>
-          )}
+          render={(day, i) => {
+            const opt = MUCUS_OPTIONS.find((o) => o.value === (day.mucus ?? ''));
+            const short = opt?.short || '—';
+            if (plainValues) {
+              return <span className="cell-print-value">{short}</span>;
+            }
+            return (
+              <select
+                className="cell-select"
+                value={day.mucus ?? ''}
+                onChange={(e) =>
+                  onUpdateDay(i, {
+                    mucus: (e.target.value || undefined) as MucusType | undefined,
+                  })
+                }
+                title={opt?.label}
+              >
+                {MUCUS_OPTIONS.map((o) => (
+                  <option key={o.value || 'none'} value={o.value}>
+                    {o.short || '—'}
+                  </option>
+                ))}
+              </select>
+            );
+          }}
         />
       </MarkerRow>
 

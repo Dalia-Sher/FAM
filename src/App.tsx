@@ -200,6 +200,7 @@ export default function App() {
               usualMeasureTime={active.meta.usualMeasureTime}
               onUpdateDay={updateDay}
               dayCount={printDayCount}
+              plainValues={printing}
             />
             <BbtGrid
               days={active.days}
@@ -214,6 +215,7 @@ export default function App() {
               usualMeasureTime={active.meta.usualMeasureTime}
               onUpdateDay={updateDay}
               dayCount={printDayCount}
+              plainValues={printing}
             />
           </div>
         </div>

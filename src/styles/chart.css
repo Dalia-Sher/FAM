@@ -358,6 +358,16 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   font-style: italic;
 }
 
+.cell-print-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: inherit;
+  text-align: center;
+}
+
 
 .toggle-dot {
   width: 100%;
@@ -646,8 +656,10 @@ html.is-printing .row-label,
 
 html.is-printing .cell-input,
 html.is-printing .cell-select,
+html.is-printing .cell-print-value,
 .chart-sheet.printing-chart .cell-input,
-.chart-sheet.printing-chart .cell-select {
+.chart-sheet.printing-chart .cell-select,
+.chart-sheet.printing-chart .cell-print-value {
   font-size: 5.5pt;
   min-height: 4mm;
 }
@@ -763,7 +775,8 @@ html.is-printing .notes-grid,
   }
 
   .cell-input,
-  .cell-select {
+  .cell-select,
+  .cell-print-value {
     font-size: 5.5pt;
     min-height: 4mm;
   }
