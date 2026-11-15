@@ -479,6 +479,22 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   border-inline-start: 1px solid var(--line);
 }
 
+.bbt-baseline-cols {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bbt-baseline-col {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(139, 115, 85, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(139, 115, 85, 0.45);
+  box-sizing: border-box;
+}
+
 .bbt-line {
   position: absolute;
   inset: 0;
@@ -487,6 +503,31 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   pointer-events: none;
   color: var(--accent);
   z-index: 3;
+}
+
+.bbt-coverline {
+  stroke: #1a2330;
+  stroke-width: 0.16;
+  stroke-linecap: butt;
+}
+
+.bbt-coverline-hint {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1.25;
+}
+
+.bbt-y-tick.is-coverline {
+  color: var(--accent);
+  font-weight: 700;
+  background: rgba(47, 93, 80, 0.12);
+}
+
+.bbt-value-cell.is-baseline {
+  background: rgba(139, 115, 85, 0.12);
 }
 
 .bbt-values-row {
@@ -979,5 +1020,18 @@ html.is-printing .notes-grid,
     border-inline-start: 1px solid var(--line) !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  .bbt-baseline-col,
+  .bbt-value-cell.is-baseline,
+  .bbt-coverline,
+  .bbt-coverline-hint {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .bbt-coverline {
+    stroke: #1a2330 !important;
+    stroke-width: 0.2 !important;
   }
 }

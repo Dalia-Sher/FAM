@@ -214,6 +214,55 @@ export function isFertileRelevant(day: DayEntry, dayIndex: number, days: DayEntr
   return false;
 }
 
+/** Result of FAM coverline / הקו המפריד detection. */
+export type SeparatingLineInfo = {
+  /** Coverline temperature (°C): max of baseline 6 + 0.05 */
+  level: number;
+  /** First day index with a rise of ≥0.1°C above the baseline max */
+  riseDayIndex: number;
+  /** Inclusive start of the 6 days before the rise */
+  baselineStart: number;
+  /** Inclusive end of the 6 days before the rise */
+  baselineEnd: number;
+  baselineMax: number;
+};
+
+/**
+ * Draw the separating line (הקו המפריד) after the first thermal shift:
+ * find the first day whose BBT is ≥0.1°C above the highest of the previous
+ * six recorded temperatures, then place the line at that max + 0.05°C.
+ */
+export function computeSeparatingLine(days: DayEntry[]): SeparatingLineInfo | null {
+  for (let r = 6; r < days.length; r++) {
+    const rise = days[r]?.bbt;
+    if (rise == null) continue;
+
+    const baseline: number[] = [];
+    let complete = true;
+    for (let i = r - 6; i < r; i++) {
+      const t = days[i]?.bbt;
+      if (t == null) {
+        complete = false;
+        break;
+      }
+      baseline.push(t);
+    }
+    if (!complete) continue;
+
+    const baselineMax = Math.max(...baseline);
+    if (rise + 1e-9 >= baselineMax + 0.1) {
+      return {
+        level: Math.round((baselineMax + 0.05) * 100) / 100,
+        riseDayIndex: r,
+        baselineStart: r - 6,
+        baselineEnd: r - 1,
+        baselineMax,
+      };
+    }
+  }
+  return null;
+}
+
 export function displayMeasureTime(day: DayEntry, usual?: string): string {
   if (day.measureTime) return day.measureTime;
   if (day.bbt != null && usual) return usual;

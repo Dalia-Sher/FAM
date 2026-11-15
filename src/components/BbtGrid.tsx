@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { DayEntry } from '../types';
 import { BBT_MAX, BBT_MIN, BBT_STEP, bbtLevels, DAYS_COUNT } from '../types';
-import { isFertileRelevant } from '../lib/helpers';
+import { computeSeparatingLine, isFertileRelevant } from '../lib/helpers';
 
 type Props = {
   days: DayEntry[];
@@ -102,16 +102,35 @@ export function BbtGrid({ days, onSetBbt, dayCount = DAYS_COUNT }: Props) {
       .join(' ');
   }, [points]);
 
+  const separating = useMemo(
+    () => computeSeparatingLine(days.slice(0, dayCount)),
+    [days, dayCount],
+  );
+
+  const coverlineY = useMemo(() => {
+    if (!separating) return null;
+    return nearestRow(levels, separating.level) + 0.5;
+  }, [separating, levels]);
+
   return (
     <>
       <div className="bbt-block">
         <div className="row-label sticky-label">
           חום השחר (°C)
           <span className="bbt-hint">הזיני טמפ׳ בשורה למטה — העיגול יופיע כאן</span>
+          {separating && (
+            <span className="bbt-coverline-hint">
+              קו מפריד: {separating.level.toFixed(2)} (עלייה מיום{' '}
+              {separating.riseDayIndex + 1})
+            </span>
+          )}
         </div>
         <div className="bbt-y-axis" aria-hidden>
           {levels.map((t) => (
-            <div key={t} className="bbt-y-tick">
+            <div
+              key={t}
+              className={`bbt-y-tick${separating && t === separating.level ? ' is-coverline' : ''}`}
+            >
               {t.toFixed(2)}
             </div>
           ))}
@@ -120,7 +139,11 @@ export function BbtGrid({ days, onSetBbt, dayCount = DAYS_COUNT }: Props) {
           <div
             className="bbt-grid bbt-grid-readonly"
             role="img"
-            aria-label="רשת חום שחר — מוצגת לפי הטמפרטורות שהוזנו למטה"
+            aria-label={
+              separating
+                ? `רשת חום שחר עם קו מפריד ב־${separating.level.toFixed(2)}`
+                : 'רשת חום שחר — מוצגת לפי הטמפרטורות שהוזנו למטה'
+            }
             style={{
               height: `calc(${levels.length} * var(--bbt-row))`,
             }}
@@ -140,12 +163,42 @@ export function BbtGrid({ days, onSetBbt, dayCount = DAYS_COUNT }: Props) {
               )}
             </div>
 
+            {separating && (
+              <div className="bbt-baseline-cols" aria-hidden>
+                {Array.from(
+                  { length: separating.baselineEnd - separating.baselineStart + 1 },
+                  (_, k) => {
+                    const col = separating.baselineStart + k;
+                    return (
+                      <div
+                        key={col}
+                        className="bbt-baseline-col"
+                        style={{
+                          left: `calc(${col} * var(--day-col))`,
+                          width: 'var(--day-col)',
+                        }}
+                      />
+                    );
+                  },
+                )}
+              </div>
+            )}
+
             <svg
               className="bbt-line"
               viewBox={`0 0 ${dayCount} ${levels.length}`}
               preserveAspectRatio="none"
               aria-hidden
             >
+              {coverlineY != null && separating && (
+                <line
+                  className="bbt-coverline"
+                  x1={separating.baselineStart}
+                  x2={dayCount}
+                  y1={coverlineY}
+                  y2={coverlineY}
+                />
+              )}
               {linePath && (
                 <path
                   d={linePath}
@@ -181,10 +234,14 @@ export function BbtGrid({ days, onSetBbt, dayCount = DAYS_COUNT }: Props) {
         <div className="day-cells">
           {Array.from({ length: dayCount }, (_, i) => {
             const bbt = days[i]?.bbt;
+            const inBaseline =
+              separating != null &&
+              i >= separating.baselineStart &&
+              i <= separating.baselineEnd;
             return (
               <div
                 key={i}
-                className={`day-cell bbt-value-cell${bbt != null ? ' has-value' : ''}`}
+                className={`day-cell bbt-value-cell${bbt != null ? ' has-value' : ''}${inBaseline ? ' is-baseline' : ''}`}
               >
                 <TempInput dayIndex={i} bbt={bbt} onSetBbt={onSetBbt} />
                 {bbt != null ? (
