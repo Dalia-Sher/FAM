@@ -193,7 +193,7 @@ export function BbtGrid({ days, onSetBbt, dayCount = DAYS_COUNT }: Props) {
               {coverlineY != null && separating && (
                 <line
                   className="bbt-coverline"
-                  x1={separating.baselineStart}
+                  x1={0}
                   x2={dayCount}
                   y1={coverlineY}
                   y2={coverlineY}
