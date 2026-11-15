@@ -436,11 +436,21 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   box-sizing: border-box;
   /* Mirror so day 1 is on the right, matching the day-cells row */
   transform: scaleX(-1);
+  background-color: #fffdf8;
+  border: 1px solid var(--line);
+}
+
+/* Grid lines above fertile green so print keeps table edges visible */
+.bbt-grid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
   background-image:
     linear-gradient(to right, var(--line) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(197, 184, 164, 0.55) 1px, transparent 1px);
+    linear-gradient(to bottom, rgba(197, 184, 164, 0.7) 1px, transparent 1px);
   background-size: var(--day-col) var(--bbt-row);
-  background-color: #fffdf8;
 }
 
 .bbt-grid-readonly {
@@ -463,6 +473,8 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   top: 0;
   bottom: 0;
   background: var(--fertile);
+  box-sizing: border-box;
+  border-inline-start: 1px solid var(--line);
 }
 
 .bbt-line {
@@ -472,7 +484,7 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   height: 100%;
   pointer-events: none;
   color: var(--accent);
-  z-index: 1;
+  z-index: 3;
 }
 
 .bbt-values-row {
@@ -933,5 +945,26 @@ html.is-printing .notes-grid,
   .day-cell.is-fertile,
   .bbt-fertile-col {
     background: #e8f0ed !important;
+  }
+
+  .bbt-grid {
+    border: 1px solid var(--line-strong) !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .bbt-grid::after {
+    background-image:
+      linear-gradient(to right, var(--line-strong) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--line) 1px, transparent 1px) !important;
+    background-size: var(--day-col) var(--bbt-row) !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .bbt-fertile-col {
+    border-inline-start: 1px solid var(--line) !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
