@@ -145,6 +145,13 @@ export function DayMarkers({
                 day.measureTime ||
                 (day.bbt != null && usualMeasureTime ? usualMeasureTime : '');
               const isDefault = !day.measureTime && !!shown;
+              if (plainValues) {
+                return (
+                  <span className="cell-print-value cell-print-time">
+                    {shown || '·'}
+                  </span>
+                );
+              }
               return (
                 <input
                   type="time"

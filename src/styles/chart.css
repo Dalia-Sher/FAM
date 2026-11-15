@@ -710,6 +710,15 @@ html.is-printing .bbt-value-cell .cell-input,
   padding: 0;
 }
 
+html.is-printing .cell-print-time,
+.chart-sheet.printing-chart .cell-print-time {
+  font-size: 4pt;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: visible;
+}
+
 html.is-printing .bbt-hint,
 .chart-sheet.printing-chart .bbt-hint {
   font-size: 4.5pt;
@@ -880,6 +889,14 @@ html.is-printing .notes-grid,
     font-variant-numeric: tabular-nums;
     overflow: visible;
     padding: 0;
+  }
+
+  .cell-print-time {
+    font-size: 4pt !important;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: visible;
   }
 
   .chart-brand h1 {
