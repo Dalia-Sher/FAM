@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import type { AppState, Cycle, CycleMeta, DayEntry } from './types';
-import { createEmptyCycle } from './types';
+import { createEmptyCycle, DAYS_COUNT, PRINT_DAYS_COUNT } from './types';
 import {
   exportStateJson,
   importStateJson,
@@ -16,6 +17,7 @@ import './styles/chart.css';
 
 export default function App() {
   const [state, setState] = useState<AppState>(() => loadState());
+  const [printing, setPrinting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -102,6 +104,31 @@ export default function App() {
     }
   };
 
+  const handlePrint = () => {
+    const root = document.documentElement;
+    flushSync(() => setPrinting(true));
+    root.classList.add('is-printing');
+
+    const cleanup = () => {
+      root.classList.remove('is-printing');
+      setPrinting(false);
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
+    window.setTimeout(cleanup, 4000);
+
+    try {
+      window.print();
+    } catch {
+      cleanup();
+      alert(
+        'לא ניתן לפתוח הדפסה בדפדפן זה.\nבאייפון: כפתור השיתוף (□↑) ← הדפסה ← שמירת PDF.',
+      );
+    }
+  };
+
+  const printDayCount = printing ? PRINT_DAYS_COUNT : DAYS_COUNT;
+
   return (
     <div className="app">
       <div className="toolbar no-print">
@@ -131,7 +158,7 @@ export default function App() {
           <button type="button" className="danger" onClick={deleteCycle}>
             מחק מחזור
           </button>
-          <button type="button" onClick={() => window.print()}>
+          <button type="button" onClick={handlePrint}>
             הדפסה / PDF
           </button>
           <button type="button" onClick={doExport}>
@@ -159,7 +186,7 @@ export default function App() {
         חלון הפוריות הוא ויזואלי לפי מה שסימנת בטבלה.
       </p>
 
-      <main className="chart-sheet">
+      <main className={`chart-sheet${printing ? ' printing-chart' : ''}`}>
         <ChartHeader meta={active.meta} onChange={setMeta} />
 
         <div className="chart-scroll">
@@ -171,8 +198,13 @@ export default function App() {
               year={active.meta.year}
               usualMeasureTime={active.meta.usualMeasureTime}
               onUpdateDay={updateDay}
+              dayCount={printDayCount}
             />
-            <BbtGrid days={active.days} onSetBbt={setBbt} />
+            <BbtGrid
+              days={active.days}
+              onSetBbt={setBbt}
+              dayCount={printDayCount}
+            />
             <DayMarkers
               section="bottom"
               days={active.days}
@@ -180,6 +212,7 @@ export default function App() {
               year={active.meta.year}
               usualMeasureTime={active.meta.usualMeasureTime}
               onUpdateDay={updateDay}
+              dayCount={printDayCount}
             />
           </div>
         </div>
