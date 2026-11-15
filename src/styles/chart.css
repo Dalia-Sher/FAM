@@ -577,7 +577,7 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
 }
 
 /*
- * Print/PDF: days 1–32, smaller type, labels on the left so Safari does not
+ * Print/PDF: all 40 days, smaller type, labels on the left so Safari does not
  * clip early days (it paints from the left of the wide RTL chart).
  */
 html.is-printing .chart-scroll,
@@ -589,10 +589,10 @@ html.is-printing .chart-scroll,
 
 html.is-printing,
 .chart-sheet.printing-chart {
-  --day-col: 5.2mm;
+  --day-col: 6.2mm;
   --label-w: 16mm;
   --axis-w: 8mm;
-  --days-width: calc(32 * var(--day-col));
+  --days-width: calc(40 * var(--day-col));
   --bbt-row: 2.8mm;
 }
 
@@ -651,7 +651,7 @@ html.is-printing .bbt-values-row > .day-cells,
 html.is-printing .day-cells,
 .chart-sheet.printing-chart .day-cells {
   direction: ltr;
-  grid-template-columns: repeat(32, minmax(0, var(--day-col)));
+  grid-template-columns: repeat(40, minmax(0, var(--day-col)));
 }
 
 html.is-printing .day-cell,
@@ -725,10 +725,10 @@ html.is-printing .notes-grid,
   :root {
     background: white;
     --paper: white;
-    --day-col: 5.2mm;
+    --day-col: 6.2mm;
     --label-w: 16mm;
     --axis-w: 8mm;
-    --days-width: calc(32 * var(--day-col));
+    --days-width: calc(40 * var(--day-col));
     --bbt-row: 2.8mm;
   }
 
@@ -800,7 +800,7 @@ html.is-printing .notes-grid,
 
   .day-cells {
     direction: ltr;
-    grid-template-columns: repeat(32, minmax(0, var(--day-col)));
+    grid-template-columns: repeat(40, minmax(0, var(--day-col)));
   }
 
   .day-cell {
