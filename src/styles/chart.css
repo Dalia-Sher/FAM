@@ -305,6 +305,8 @@ body {
 
 .day-cell.is-fertile {
   background: var(--fertile);
+  /* Keep cell edges above the green fill (esp. in print/PDF) */
+  box-shadow: inset 0 0 0 1px var(--line);
 }
 
 .day-num {
@@ -945,6 +947,17 @@ html.is-printing .notes-grid,
   .day-cell.is-fertile,
   .bbt-fertile-col {
     background: #e8f0ed !important;
+  }
+
+  .day-cell {
+    border-inline-start: 1px solid var(--line) !important;
+  }
+
+  .day-cell.is-fertile {
+    border-inline-start: 1px solid var(--line-strong) !important;
+    box-shadow: inset 0 0 0 1px var(--line) !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   .bbt-grid {
