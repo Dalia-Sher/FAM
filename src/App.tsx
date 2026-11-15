@@ -1,25 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { flushSync } from 'react-dom';
 import type { AppState, Cycle, CycleMeta, DayEntry } from './types';
-import { createEmptyCycle, DAYS_COUNT, PRINT_DAYS_COUNT } from './types';
+import { createEmptyCycle } from './types';
 import {
   exportStateJson,
   importStateJson,
   loadState,
   saveState,
 } from './lib/storage';
-import { cycleDisplayName, cyclePrintTitle } from './lib/helpers';
+import { cycleDisplayName } from './lib/helpers';
 import { ChartHeader } from './components/ChartHeader';
 import { BbtGrid } from './components/BbtGrid';
 import { DayMarkers } from './components/DayMarkers';
 import { ChartNotes } from './components/ChartNotes';
 import './styles/chart.css';
 
-const DEFAULT_DOC_TITLE = 'מניעת הריון · טבלת שמ״פ';
-
 export default function App() {
   const [state, setState] = useState<AppState>(() => loadState());
-  const [printing, setPrinting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -106,38 +102,6 @@ export default function App() {
     }
   };
 
-  const handlePrint = () => {
-    const root = document.documentElement;
-    const prevTitle = document.title;
-    document.title = cyclePrintTitle(active.meta);
-
-    // Shrink to days 1–32 + print layout before Safari snapshots the page.
-    flushSync(() => setPrinting(true));
-    root.classList.add('is-printing');
-
-    const cleanup = () => {
-      root.classList.remove('is-printing');
-      document.title = prevTitle || DEFAULT_DOC_TITLE;
-      setPrinting(false);
-      window.removeEventListener('afterprint', cleanup);
-    };
-    window.addEventListener('afterprint', cleanup);
-    // iOS Safari often does not fire afterprint
-    window.setTimeout(cleanup, 4000);
-
-    // Must stay synchronous inside the tap handler — iOS ignores deferred print().
-    try {
-      window.print();
-    } catch {
-      cleanup();
-      alert(
-        'לא ניתן לפתוח הדפסה בדפדפן זה.\nבאייפון: כפתור השיתוף (□↑) ← הדפסה ← שמירת PDF.',
-      );
-    }
-  };
-
-  const printDayCount = printing ? PRINT_DAYS_COUNT : DAYS_COUNT;
-
   return (
     <div className="app">
       <div className="toolbar no-print">
@@ -167,7 +131,7 @@ export default function App() {
           <button type="button" className="danger" onClick={deleteCycle}>
             מחק מחזור
           </button>
-          <button type="button" onClick={handlePrint}>
+          <button type="button" onClick={() => window.print()}>
             הדפסה / PDF
           </button>
           <button type="button" onClick={doExport}>
@@ -190,21 +154,12 @@ export default function App() {
         </div>
       </div>
 
-      <button
-        type="button"
-        className="mobile-save-bar no-print"
-        onClick={handlePrint}
-      >
-        שמירת PDF
-      </button>
-
       <p className="disclaimer no-print">
         כלי תיעוד בלבד — אינו ייעוץ רפואי ואינו מחליף למידה עם מדריכה מוסמכת. סימון
         חלון הפוריות הוא ויזואלי לפי מה שסימנת בטבלה.
-        באייפון: הדפסה / PDF ← שמירת PDF.
       </p>
 
-      <main className={`chart-sheet${printing ? ' printing-chart' : ''}`}>
+      <main className="chart-sheet">
         <ChartHeader meta={active.meta} onChange={setMeta} />
 
         <div className="chart-scroll">
@@ -216,13 +171,8 @@ export default function App() {
               year={active.meta.year}
               usualMeasureTime={active.meta.usualMeasureTime}
               onUpdateDay={updateDay}
-              dayCount={printDayCount}
             />
-            <BbtGrid
-              days={active.days}
-              onSetBbt={setBbt}
-              dayCount={printDayCount}
-            />
+            <BbtGrid days={active.days} onSetBbt={setBbt} />
             <DayMarkers
               section="bottom"
               days={active.days}
@@ -230,7 +180,6 @@ export default function App() {
               year={active.meta.year}
               usualMeasureTime={active.meta.usualMeasureTime}
               onUpdateDay={updateDay}
-              dayCount={printDayCount}
             />
           </div>
         </div>
