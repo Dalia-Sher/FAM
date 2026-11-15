@@ -576,17 +576,132 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   }
 }
 
+/*
+ * Print/PDF matched to reference "טבלת שמ״פ ספטמבר.pdf":
+ * A4 portrait, RTL (labels + day 1 on the right), days 1–34, ~4.4mm columns.
+ */
+html.is-printing,
+.chart-sheet.printing-chart {
+  --day-col: 4.4mm;
+  --label-w: 32mm;
+  --axis-w: 9mm;
+  --days-width: calc(34 * var(--day-col));
+  --bbt-row: 3mm;
+}
+
+html.is-printing .chart-scroll,
+.chart-sheet.printing-chart .chart-scroll {
+  overflow: visible !important;
+  margin: 0 !important;
+  /* Keep RTL so day 1 stays beside the labels (right side), like the reference PDF */
+  direction: rtl !important;
+}
+
+html.is-printing .chart-body,
+.chart-sheet.printing-chart .chart-body {
+  min-width: 0 !important;
+  width: max-content;
+  max-width: 100%;
+}
+
+html.is-printing .day-cells,
+.chart-sheet.printing-chart .day-cells {
+  direction: rtl;
+  grid-template-columns: repeat(34, minmax(0, var(--day-col)));
+}
+
+html.is-printing .row-label,
+html.is-printing .sticky-label,
+html.is-printing .sticky-days,
+.chart-sheet.printing-chart .row-label,
+.chart-sheet.printing-chart .sticky-label,
+.chart-sheet.printing-chart .sticky-days {
+  position: static !important;
+}
+
+html.is-printing .bbt-clear,
+.chart-sheet.printing-chart .bbt-clear,
+html.is-printing .bbt-clear-placeholder,
+.chart-sheet.printing-chart .bbt-clear-placeholder {
+  display: none !important;
+}
+
+html.is-printing .day-cell,
+.chart-sheet.printing-chart .day-cell {
+  min-height: 4mm;
+  font-size: 6pt;
+}
+
+html.is-printing .day-num,
+.chart-sheet.printing-chart .day-num {
+  font-size: 6.5pt;
+}
+
+html.is-printing .row-label,
+.chart-sheet.printing-chart .row-label {
+  font-size: 6pt;
+  line-height: 1.15;
+  padding: 0.4mm 1mm;
+}
+
+html.is-printing .cell-input,
+html.is-printing .cell-select,
+.chart-sheet.printing-chart .cell-input,
+.chart-sheet.printing-chart .cell-select {
+  font-size: 5.5pt;
+  min-height: 4mm;
+}
+
+html.is-printing .bbt-hint,
+.chart-sheet.printing-chart .bbt-hint {
+  font-size: 4.5pt;
+  line-height: 1.1;
+}
+
+html.is-printing .bbt-y-tick,
+.chart-sheet.printing-chart .bbt-y-tick {
+  font-size: 4.5pt;
+}
+
+html.is-printing .chart-brand h1,
+.chart-sheet.printing-chart .chart-brand h1 {
+  font-size: 16pt;
+}
+
+html.is-printing .chart-subtitle,
+.chart-sheet.printing-chart .chart-subtitle {
+  font-size: 8pt;
+}
+
+html.is-printing .meta-grid,
+html.is-printing .notes-grid,
+.chart-sheet.printing-chart .meta-grid,
+.chart-sheet.printing-chart .notes-grid {
+  font-size: 7pt;
+  gap: 1.5mm 2mm;
+}
+
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
   :root {
     background: white;
     --paper: white;
-    --day-col: 1.55rem;
-    --label-w: 9rem;
-    --bbt-row: 0.85rem;
+    --day-col: 4.4mm;
+    --label-w: 32mm;
+    --axis-w: 9mm;
+    --days-width: calc(34 * var(--day-col));
+    --bbt-row: 3mm;
   }
 
+  html,
   body {
-    background: white;
+    background: white !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 
   .no-print {
@@ -596,25 +711,110 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   .app {
     max-width: none;
     padding: 0;
+    margin: 0;
   }
 
   .chart-sheet {
     box-shadow: none;
     border: none;
     padding: 0;
+    background: white;
   }
 
   .chart-scroll {
-    overflow: visible;
+    overflow: visible !important;
+    margin: 0 !important;
+    direction: rtl !important;
+  }
+
+  .chart-body {
+    min-width: 0 !important;
+    width: max-content;
+    max-width: 100%;
+  }
+
+  .day-cells {
+    direction: rtl;
+    grid-template-columns: repeat(34, minmax(0, var(--day-col)));
+  }
+
+  .marker-row,
+  .bbt-block,
+  .bbt-values-row {
+    grid-template-columns: var(--days-width) var(--axis-w) var(--label-w);
+  }
+
+  .row-label,
+  .sticky-label,
+  .sticky-days {
+    position: static !important;
+    font-size: 6pt;
+    line-height: 1.15;
+    padding: 0.4mm 1mm;
+  }
+
+  .day-cell {
+    min-height: 4mm;
+    font-size: 6pt;
+  }
+
+  .day-num {
+    font-size: 6.5pt;
+  }
+
+  .cell-input,
+  .cell-select {
+    font-size: 5.5pt;
+    min-height: 4mm;
+  }
+
+  .bbt-hint {
+    font-size: 4.5pt;
+    line-height: 1.1;
+  }
+
+  .bbt-clear,
+  .bbt-clear-placeholder {
+    display: none !important;
+  }
+
+  .bbt-y-tick {
+    font-size: 4.5pt;
+  }
+
+  .bbt-value-cell {
+    min-height: 5mm;
+  }
+
+  .chart-brand h1 {
+    font-size: 16pt;
+  }
+
+  .chart-subtitle {
+    font-size: 8pt;
+    margin-bottom: 2mm;
+  }
+
+  .meta-grid,
+  .notes-grid {
+    font-size: 7pt;
+    gap: 1.5mm 2mm;
+  }
+
+  .disclaimer {
+    display: none !important;
   }
 
   .toolbar-actions button,
   .cell-input,
   .cell-select,
   .toggle-dot,
-  .bbt-grid {
-    -webkit-print-color-adjust: exact;
+  .bbt-grid,
+  .bbt-line,
+  .day-cell.is-fertile,
+  .bbt-fertile-col {
     print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 
   .day-cell.is-fertile,
