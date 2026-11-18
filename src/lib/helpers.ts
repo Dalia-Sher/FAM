@@ -296,11 +296,13 @@ export function cycleDisplayName(cycle: Cycle, index: number): string {
   return `מחזור ${n}${month}${year}`;
 }
 
-function dayHasChartEntry(day: DayEntry): boolean {
+/**
+ * Real chart observations — not auto-filled dates alone (day-1 date fill
+ * writes calendar days for the next 30 columns).
+ */
+function dayHasObservation(day: DayEntry): boolean {
   return !!(
-    day.date ||
     day.bbt != null ||
-    day.measureTime ||
     day.intercourse ||
     day.contraception ||
     day.mucus ||
@@ -312,11 +314,33 @@ function dayHasChartEntry(day: DayEntry): boolean {
   );
 }
 
-/** Last filled cycle day number (1-based), or undefined if the chart is empty. */
+/**
+ * If next-period bleeding is marked later on this chart, cycle length is the
+ * day before that return (standard: day 1 → day before next menses).
+ */
+function cycleLengthFromReturnOfPeriod(days: DayEntry[]): number | undefined {
+  let i = 0;
+  while (i < days.length && days[i]?.mucus === 'period') i += 1;
+  if (i === 0) return undefined;
+
+  while (i < days.length && days[i]?.mucus !== 'period') i += 1;
+  if (i >= days.length) return undefined;
+  // i = 0-based index of next menses day 1 → length = i
+  return i > 0 ? i : undefined;
+}
+
+/**
+ * Cycle length (1-based day count): prefer return of period on this chart;
+ * else last day with a real observation (BBT/mucus/peak/etc.), ignoring
+ * date-only autofill.
+ */
 export function computeCycleLength(days: DayEntry[]): number | undefined {
+  const fromPeriod = cycleLengthFromReturnOfPeriod(days);
+  if (fromPeriod != null) return fromPeriod;
+
   let last = -1;
   for (let i = 0; i < days.length; i++) {
-    if (dayHasChartEntry(days[i] ?? {})) last = i;
+    if (dayHasObservation(days[i] ?? {})) last = i;
   }
   return last >= 0 ? last + 1 : undefined;
 }
