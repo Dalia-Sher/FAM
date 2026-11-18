@@ -141,6 +141,12 @@ export default function App() {
         ...(lutealLength != null ? { lutealLength } : {}),
       },
     }));
+    if (lutealLength == null) {
+      alert(
+        'אורך המחזור עודכן, אבל לא ניתן לחשב אורך שלב לוטאלי.\n' +
+          'צריך עליית חום (שישה ימי BBT ואז עלייה של לפחות 0.1°) או סימון יום שיא עם ימים אחריו.',
+      );
+    }
   };
 
   const doExport = () => {

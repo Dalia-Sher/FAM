@@ -322,8 +322,9 @@ export function computeCycleLength(days: DayEntry[]): number | undefined {
 }
 
 /**
- * Luteal phase length for a finished cycle: the luteal-row count on the last
- * filled day (from thermal rise). Falls back to days after peak if no rise.
+ * Luteal phase length for a finished cycle: prefer the luteal-row value on the
+ * last filled day (auto from thermal rise, or a manual override). Fallbacks:
+ * highest luteal number already on the row, then days after peak.
  */
 export function computeLutealLength(
   days: DayEntry[],
@@ -332,6 +333,17 @@ export function computeLutealLength(
   const len = cycleLength ?? computeCycleLength(days);
   if (len == null || len < 1) return undefined;
   const lastIndex = len - 1;
+
+  const lastLabel = lutealCountLabel(days, lastIndex);
+  const lastN = Number(lastLabel);
+  if (Number.isFinite(lastN) && lastN > 0) return lastN;
+
+  let maxOnRow = 0;
+  for (let i = 0; i <= lastIndex; i++) {
+    const n = Number(lutealCountLabel(days, i));
+    if (Number.isFinite(n) && n > maxOnRow) maxOnRow = n;
+  }
+  if (maxOnRow > 0) return maxOnRow;
 
   const sep = computeSeparatingLine(days);
   if (sep && lastIndex >= sep.riseDayIndex) {
