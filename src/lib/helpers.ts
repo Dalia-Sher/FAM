@@ -296,6 +296,68 @@ export function cycleDisplayName(cycle: Cycle, index: number): string {
   return `מחזור ${n}${month}${year}`;
 }
 
+function dayHasChartEntry(day: DayEntry): boolean {
+  return !!(
+    day.date ||
+    day.bbt != null ||
+    day.measureTime ||
+    day.intercourse ||
+    day.contraception ||
+    day.mucus ||
+    day.peakDay ||
+    day.sensation ||
+    day.cervix ||
+    day.ovulationPain ||
+    (day.lutealCountOverride != null && day.lutealCountOverride > 0)
+  );
+}
+
+/** Last filled cycle day number (1-based), or undefined if the chart is empty. */
+export function computeCycleLength(days: DayEntry[]): number | undefined {
+  let last = -1;
+  for (let i = 0; i < days.length; i++) {
+    if (dayHasChartEntry(days[i] ?? {})) last = i;
+  }
+  return last >= 0 ? last + 1 : undefined;
+}
+
+/**
+ * Luteal phase length for a finished cycle: the luteal-row count on the last
+ * filled day (from thermal rise). Falls back to days after peak if no rise.
+ */
+export function computeLutealLength(
+  days: DayEntry[],
+  cycleLength?: number,
+): number | undefined {
+  const len = cycleLength ?? computeCycleLength(days);
+  if (len == null || len < 1) return undefined;
+  const lastIndex = len - 1;
+
+  const sep = computeSeparatingLine(days);
+  if (sep && lastIndex >= sep.riseDayIndex) {
+    return lastIndex - sep.riseDayIndex + 1;
+  }
+
+  const peak = findPeakDayIndex(days);
+  if (peak >= 0 && lastIndex > peak) {
+    return lastIndex - peak;
+  }
+  return undefined;
+}
+
+/** Values for אורך מחזור זה / אורך שלב לוטאלי when the user marks the cycle done. */
+export function computeFinishedCycleMeta(days: DayEntry[]): {
+  cycleLength?: number;
+  lutealLength?: number;
+} {
+  const cycleLength = computeCycleLength(days);
+  if (cycleLength == null) return {};
+  return {
+    cycleLength,
+    lutealLength: computeLutealLength(days, cycleLength),
+  };
+}
+
 export function ensureDays(days: DayEntry[]): DayEntry[] {
   const next = days.slice(0, DAYS_COUNT);
   while (next.length < DAYS_COUNT) next.push({});

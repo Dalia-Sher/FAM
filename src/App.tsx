@@ -8,7 +8,12 @@ import {
   loadState,
   saveState,
 } from './lib/storage';
-import { cycleDisplayName, dayOfMonthValue, followingDayOfMonthSeries } from './lib/helpers';
+import {
+  cycleDisplayName,
+  computeFinishedCycleMeta,
+  dayOfMonthValue,
+  followingDayOfMonthSeries,
+} from './lib/helpers';
 import { ChartHeader } from './components/ChartHeader';
 import { BbtGrid } from './components/BbtGrid';
 import { DayMarkers } from './components/DayMarkers';
@@ -122,6 +127,22 @@ export default function App() {
     });
   };
 
+  const finishCycle = () => {
+    const { cycleLength, lutealLength } = computeFinishedCycleMeta(active.days);
+    if (cycleLength == null) {
+      alert('אין מספיק נתונים בטבלה כדי לחשב אורך מחזור.');
+      return;
+    }
+    updateActive((c) => ({
+      ...c,
+      meta: {
+        ...c.meta,
+        cycleLength,
+        ...(lutealLength != null ? { lutealLength } : {}),
+      },
+    }));
+  };
+
   const doExport = () => {
     const blob = new Blob([exportStateJson(state)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -193,6 +214,9 @@ export default function App() {
           </label>
           <button type="button" onClick={addCycle}>
             מחזור חדש
+          </button>
+          <button type="button" onClick={finishCycle} title="ממלא אוטומטית אורך מחזור ואורך שלב לוטאלי">
+            סיימתי
           </button>
           <button type="button" className="danger" onClick={deleteCycle}>
             מחק מחזור
