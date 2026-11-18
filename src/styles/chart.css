@@ -81,7 +81,7 @@ body {
 }
 
 .toolbar-brand strong {
-  font-family: var(--display);
+  font-family: 'Segoe UI', Tahoma, sans-serif;
   font-size: 1.35rem;
   letter-spacing: 0.02em;
 }
@@ -164,7 +164,7 @@ body {
 
 .chart-brand h1 {
   margin: 0;
-  font-family: var(--display);
+  font-family: 'Segoe UI', Tahoma, sans-serif;
   font-size: clamp(1.8rem, 4vw, 2.6rem);
   font-weight: 700;
   color: var(--accent);
@@ -589,7 +589,7 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
 .chart-notes h2,
 .mucus-legend h3 {
   margin: 0 0 0.75rem;
-  font-family: var(--display);
+  font-family: 'Segoe UI', Tahoma, sans-serif;
   font-size: 1.15rem;
   color: var(--accent);
 }
