@@ -14,85 +14,8 @@ export function ChartNotes({ meta, onChange }: Props) {
     <section className="chart-notes">
       <h2>הערות והפרעות</h2>
       <div className="notes-grid">
-        <label>
-          פעילות גופנית
-          <input
-            type="text"
-            name="fam-exercise"
-            autoComplete="off"
-            autoCorrect="off"
-            value={meta.exercise ?? ''}
-            onChange={(e) => set('exercise', e.target.value)}
-          />
-        </label>
-        <label>
-          נסיעות
-          <input
-            type="text"
-            name="fam-travel"
-            autoComplete="off"
-            autoCorrect="off"
-            value={meta.travel ?? ''}
-            onChange={(e) => set('travel', e.target.value)}
-          />
-        </label>
-        <label>
-          מחלה / מתח
-          <input
-            type="text"
-            name="fam-illness"
-            autoComplete="off"
-            autoCorrect="off"
-            value={meta.illnessStress ?? ''}
-            onChange={(e) => set('illnessStress', e.target.value)}
-          />
-        </label>
-        <label>
-          תסמונת קדם־וסתית
-          <input
-            type="text"
-            name="fam-pms"
-            autoComplete="off"
-            autoCorrect="off"
-            value={meta.pms ?? ''}
-            onChange={(e) => set('pms', e.target.value)}
-          />
-        </label>
-        <label>
-          שתיית אלכוהול
-          <input
-            type="text"
-            name="fam-alcohol"
-            autoComplete="off"
-            autoCorrect="off"
-            value={meta.alcohol ?? ''}
-            onChange={(e) => set('alcohol', e.target.value)}
-          />
-        </label>
-        <label>
-          צמחי מרפא, ויטמינים
-          <input
-            type="text"
-            name="fam-herbs"
-            autoComplete="off"
-            autoCorrect="off"
-            value={meta.herbsVitamins ?? ''}
-            onChange={(e) => set('herbsVitamins', e.target.value)}
-          />
-        </label>
-        <label>
-          תוספי תזונה
-          <input
-            type="text"
-            name="fam-supplements"
-            autoComplete="off"
-            autoCorrect="off"
-            value={meta.supplements ?? ''}
-            onChange={(e) => set('supplements', e.target.value)}
-          />
-        </label>
         <label className="notes-full">
-          הערות
+          הערות (נסיעות/יציאות חריגות/נסיעות/מחלות וכו)
           <textarea
             rows={3}
             name="fam-notes"
