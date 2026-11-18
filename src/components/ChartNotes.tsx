@@ -15,7 +15,7 @@ export function ChartNotes({ meta, onChange }: Props) {
       <h2>הערות והפרעות</h2>
       <div className="notes-grid">
         <label className="notes-full">
-          הערות (נסיעות/יציאות חריגות/נסיעות/מחלות וכו)
+          הערות (נסיעות/יציאות חריגות/אלכוהול/מחלות וכו)
           <textarea
             rows={3}
             name="fam-notes"
