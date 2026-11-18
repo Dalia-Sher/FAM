@@ -190,8 +190,9 @@ export function postPeakLabel(days: DayEntry[], dayIndex: number): string {
 }
 
 /**
- * Luteal phase day count: starts the day after peak (editable via override).
- * Returns display string for that day column.
+ * Luteal phase day count: day 1 = first thermal rise (≥0.1°C above the
+ * highest of the previous 6 temps — same rule as הקו המפריד), then 2, 3…
+ * through the end of the cycle. Editable via lutealCountOverride.
  */
 export function lutealCountLabel(days: DayEntry[], dayIndex: number): string {
   const day = days[dayIndex];
@@ -200,10 +201,10 @@ export function lutealCountLabel(days: DayEntry[], dayIndex: number): string {
   }
   if (day?.lutealCountOverride === 0) return '';
 
-  const peak = findPeakDayIndex(days);
-  if (peak < 0) return '';
-  if (dayIndex <= peak) return '';
-  return String(dayIndex - peak);
+  const sep = computeSeparatingLine(days);
+  if (!sep) return '';
+  if (dayIndex < sep.riseDayIndex) return '';
+  return String(dayIndex - sep.riseDayIndex + 1);
 }
 
 export function isFertileRelevant(day: DayEntry, dayIndex: number, days: DayEntry[]): boolean {

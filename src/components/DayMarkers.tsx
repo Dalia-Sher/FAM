@@ -240,7 +240,7 @@ export function DayMarkers({
                   if (Number.isFinite(n)) onUpdateDay(i, { lutealCountOverride: n });
                 }}
                 onDoubleClick={() => onUpdateDay(i, { lutealCountOverride: null })}
-                title="לחיצה כפולה מאפסת לחישוב אוטומטי"
+                title="אוטומטי מיום עליית החום (כמו הקו המפריד). לחיצה כפולה מחזירה לחישוב אוטומטי."
               />
             )}
           />
