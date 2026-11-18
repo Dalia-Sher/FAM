@@ -4,8 +4,8 @@
   --ink-muted: #4a5568;
   --line: #c5b8a4;
   --line-strong: #8b7355;
-  --accent: #2f5d50;
-  --fertile: rgba(47, 93, 80, 0.12);
+  --accent: #b24a6e;
+  --fertile: rgba(178, 74, 110, 0.12);
   --danger: #8b3a3a;
   --day-col: 2.15rem;
   --label-w: 11.5rem;
@@ -305,7 +305,7 @@ body {
 
 .day-cell.is-fertile {
   background: var(--fertile);
-  /* Keep cell edges above the green fill (esp. in print/PDF) */
+  /* Keep cell edges above the fertile fill (esp. in print/PDF) */
   box-shadow: inset 0 0 0 1px var(--line);
 }
 
@@ -389,7 +389,7 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
 }
 
 .toggle-dot.peak.on {
-  background: rgba(47, 93, 80, 0.18);
+  background: rgba(178, 74, 110, 0.18);
 }
 
 .bbt-block {
@@ -442,7 +442,7 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
   border: 1px solid var(--line);
 }
 
-/* Grid lines above fertile green so print keeps table edges visible */
+/* Grid lines above fertile tint so print keeps table edges visible */
 .bbt-grid::after {
   content: '';
   position: absolute;
@@ -523,7 +523,7 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
 .bbt-y-tick.is-coverline {
   color: var(--accent);
   font-weight: 700;
-  background: rgba(47, 93, 80, 0.12);
+  background: rgba(178, 74, 110, 0.12);
 }
 
 .bbt-value-cell.is-baseline {
@@ -542,7 +542,7 @@ input[type='number'].cell-input::-webkit-inner-spin-button {
 }
 
 .bbt-value-cell.has-value {
-  background: rgba(47, 93, 80, 0.06);
+  background: rgba(178, 74, 110, 0.06);
 }
 
 .bbt-value-cell .cell-input {
@@ -987,7 +987,7 @@ html.is-printing .notes-grid,
 
   .day-cell.is-fertile,
   .bbt-fertile-col {
-    background: #e8f0ed !important;
+    background: #f5e6ec !important;
   }
 
   .day-cell {
