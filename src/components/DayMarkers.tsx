@@ -250,9 +250,22 @@ export function DayMarkers({
           <DayCells
             days={days}
             dayCount={dayCount}
-            render={(_, i) => (
-              <span className="derived">{postPeakLabel(days, i) || '·'}</span>
-            )}
+            render={(day, i) => {
+              const label = postPeakLabel(days, i);
+              return (
+                <button
+                  type="button"
+                  className={`toggle-dot peak${day.peakDay ? ' on' : ''}`}
+                  aria-pressed={!!day.peakDay}
+                  onClick={() =>
+                    onUpdateDay(i, { peakDay: day.peakDay ? false : true })
+                  }
+                  title="לחיצה מסמנת יום שיא"
+                >
+                  {label || '·'}
+                </button>
+              );
+            }}
           />
         </MarkerRow>
       </div>
@@ -326,25 +339,6 @@ export function DayMarkers({
               </select>
             );
           }}
-        />
-      </MarkerRow>
-
-      <MarkerRow label="יום השיא">
-        <DayCells
-          days={days}
-          dayCount={dayCount}
-          render={(day, i) => (
-            <button
-              type="button"
-              className={`toggle-dot peak${day.peakDay ? ' on' : ''}`}
-              aria-pressed={!!day.peakDay}
-              onClick={() =>
-                onUpdateDay(i, { peakDay: day.peakDay ? false : true })
-              }
-            >
-              {day.peakDay ? 'יש' : '·'}
-            </button>
-          )}
         />
       </MarkerRow>
 
