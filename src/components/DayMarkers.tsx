@@ -3,6 +3,7 @@ import type { DayEntry, MucusType } from '../types';
 import { DAYS_COUNT } from '../types';
 import {
   dayOfMonthValue,
+  findPeakDayIndex,
   isFertileRelevant,
   lutealCountLabel,
   postPeakLabel,
@@ -333,18 +334,28 @@ export function DayMarkers({
         <DayCells
           days={days}
           dayCount={dayCount}
-          render={(day, i) => (
-            <button
-              type="button"
-              className={`toggle-dot peak${day.peakDay ? ' on' : ''}`}
-              aria-pressed={!!day.peakDay}
-              onClick={() =>
-                onUpdateDay(i, { peakDay: day.peakDay ? false : true })
-              }
-            >
-              {day.peakDay ? 'יש' : '·'}
-            </button>
-          )}
+          render={(day, i) => {
+            const peak = findPeakDayIndex(days);
+            const isPeak = peak === i;
+            return (
+              <button
+                type="button"
+                className={`toggle-dot peak${isPeak ? ' on' : ''}`}
+                aria-pressed={isPeak}
+                onClick={() =>
+                  onUpdateDay(i, { peakDay: day.peakDay ? false : true })
+                }
+                onDoubleClick={() => {
+                  days.forEach((d, idx) => {
+                    if (d.peakDay) onUpdateDay(idx, { peakDay: false });
+                  });
+                }}
+                title="אוטומטי לפי ריר/תחושת סיכוך (היום האחרון לפני ייבוש). לחיצה = סימון ידני; לחיצה כפולה = חזרה לאוטומטי."
+              >
+                {isPeak ? 'יש' : '·'}
+              </button>
+            );
+          }}
         />
       </MarkerRow>
 
@@ -356,12 +367,12 @@ export function DayMarkers({
             <input
               type="text"
               className="cell-input"
-              maxLength={6}
+              maxLength={8}
               value={day.sensation ?? ''}
               onChange={(e) =>
                 onUpdateDay(i, { sensation: e.target.value || undefined })
               }
-              placeholder="לח/יבש"
+              placeholder="סיכוך/לח"
             />
           )}
         />

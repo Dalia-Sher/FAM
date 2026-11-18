@@ -173,9 +173,54 @@ export function weekdayFromDayOfMonth(
   return WEEKDAYS_HE[d.getDay()];
 }
 
-/** Index of the (first) peak day, or -1 */
+/** Lubricated / slippery vaginal sensation (תחושת סיכוך) from free-text. */
+export function hasLubricatedSensation(sensation?: string): boolean {
+  if (!sensation) return false;
+  const t = sensation.trim().toLowerCase().replace(/\s+/g, '');
+  return /סיכוך|חלקלק|מתיח|לח|לחה|רטוב|רטובה|slip|wet|lube/.test(t);
+}
+
+/**
+ * Fertility rank for peak-day detection (זיהוי יום השיא):
+ * 3 = egg-white mucus or lubricated sensation
+ * 2 = creamy / milky
+ * 1 = sticky
+ * 0 = dry / period / spotting / empty
+ */
+export function fertilitySignRank(day: DayEntry): number {
+  if (hasLubricatedSensation(day.sensation) || day.mucus === 'eggwhite') return 3;
+  if (day.mucus === 'creamy') return 2;
+  if (day.mucus === 'sticky') return 1;
+  return 0;
+}
+
+/**
+ * Peak day = last day of the most fertile mucus/sensation in the cycle,
+ * confirmed when the following day is drier (lower rank).
+ */
+export function computePeakDayIndex(days: DayEntry[]): number {
+  let maxRank = 0;
+  for (const d of days) {
+    maxRank = Math.max(maxRank, fertilitySignRank(d));
+  }
+  if (maxRank <= 0) return -1;
+
+  let peak = -1;
+  for (let i = 0; i < days.length; i++) {
+    if (fertilitySignRank(days[i]!) !== maxRank) continue;
+    const next = days[i + 1];
+    if (next != null && fertilitySignRank(next) < maxRank) {
+      peak = i;
+    }
+  }
+  return peak;
+}
+
+/** Manual peakDay if set; otherwise auto from mucus/sensation. */
 export function findPeakDayIndex(days: DayEntry[]): number {
-  return days.findIndex((d) => d.peakDay);
+  const manual = days.findIndex((d) => d.peakDay);
+  if (manual >= 0) return manual;
+  return computePeakDayIndex(days);
 }
 
 /**
@@ -208,10 +253,10 @@ export function lutealCountLabel(days: DayEntry[], dayIndex: number): string {
 }
 
 export function isFertileRelevant(day: DayEntry, dayIndex: number, days: DayEntry[]): boolean {
-  if (day.peakDay) return true;
   if (day.mucus === 'eggwhite' || day.mucus === 'creamy') return true;
+  if (hasLubricatedSensation(day.sensation)) return true;
   const peak = findPeakDayIndex(days);
-  if (peak >= 0 && dayIndex > peak && dayIndex <= peak + 3) return true;
+  if (peak >= 0 && dayIndex >= peak && dayIndex <= peak + 3) return true;
   return false;
 }
 
