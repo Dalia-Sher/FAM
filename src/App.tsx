@@ -9,7 +9,6 @@ import {
   saveState,
 } from './lib/storage';
 import {
-  applyFinishedLutealRow,
   cycleDisplayName,
   computeFinishedCycleMeta,
   dayOfMonthValue,
@@ -141,10 +140,6 @@ export default function App() {
         cycleLength,
         ...(lutealLength != null ? { lutealLength } : {}),
       },
-      days:
-        lutealLength != null
-          ? applyFinishedLutealRow(c.days, cycleLength, lutealLength)
-          : applyFinishedLutealRow(c.days, cycleLength),
     }));
     if (lutealLength == null) {
       alert(
