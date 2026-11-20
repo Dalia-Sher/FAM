@@ -394,6 +394,44 @@ export function computeFinishedCycleMeta(days: DayEntry[]): {
   };
 }
 
+/**
+ * After סיימתי: write 1…N on the luteal row (N = אורך שלב לוטאלי) and
+ * blank every day after the cycle ends. Start = thermal rise, else peak+1.
+ */
+export function applyFinishedLutealRow(
+  days: DayEntry[],
+  cycleLength: number,
+  lutealLength?: number,
+): DayEntry[] {
+  const lastIndex = cycleLength - 1;
+  if (lastIndex < 0) return days;
+
+  let start = -1;
+  const sep = computeSeparatingLine(days);
+  if (sep) start = sep.riseDayIndex;
+  else {
+    const peak = findPeakDayIndex(days);
+    if (peak >= 0) start = peak + 1;
+  }
+
+  return days.map((d, i) => {
+    if (i > lastIndex) {
+      return { ...d, lutealCountOverride: 0 };
+    }
+    if (start < 0 || i < start) {
+      if (d.lutealCountOverride != null) {
+        return { ...d, lutealCountOverride: null };
+      }
+      return d;
+    }
+    const n = i - start + 1;
+    if (lutealLength != null && n > lutealLength) {
+      return { ...d, lutealCountOverride: 0 };
+    }
+    return { ...d, lutealCountOverride: n };
+  });
+}
+
 export function ensureDays(days: DayEntry[]): DayEntry[] {
   const next = days.slice(0, DAYS_COUNT);
   while (next.length < DAYS_COUNT) next.push({});
