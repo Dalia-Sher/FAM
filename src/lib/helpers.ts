@@ -394,6 +394,38 @@ export function computeFinishedCycleMeta(days: DayEntry[]): {
   };
 }
 
+/**
+ * After סיימתי: only the first luteal-phase cell keeps a number — equal to
+ * אורך שלב לוטאלי (e.g. 10). Every following cell is emptied.
+ * Start = thermal rise, else day after peak.
+ */
+export function applyFinishedLutealRow(
+  days: DayEntry[],
+  _cycleLength: number,
+  lutealLength?: number,
+): DayEntry[] {
+  let start = -1;
+  const sep = computeSeparatingLine(days);
+  if (sep) start = sep.riseDayIndex;
+  else {
+    const peak = findPeakDayIndex(days);
+    if (peak >= 0) start = peak + 1;
+  }
+
+  return days.map((d, i) => {
+    if (start >= 0 && i === start && lutealLength != null && lutealLength > 0) {
+      return { ...d, lutealCountOverride: lutealLength };
+    }
+    if (start >= 0 && i > start) {
+      return { ...d, lutealCountOverride: 0 };
+    }
+    if (d.lutealCountOverride != null) {
+      return { ...d, lutealCountOverride: null };
+    }
+    return d;
+  });
+}
+
 export function ensureDays(days: DayEntry[]): DayEntry[] {
   const next = days.slice(0, DAYS_COUNT);
   while (next.length < DAYS_COUNT) next.push({});
